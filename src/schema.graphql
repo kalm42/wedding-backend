@@ -1,0 +1,43 @@
+# import * from './generated/prisma.graphql'
+
+type Mutation {
+  signup(
+    name: String!
+    email: String!
+    password: String!
+    line1: String!
+    line2: String
+    city: String!
+    state: String!
+    zip: String!
+  ): User!
+  signin(email: String!, password: String!): User!
+  signout: SuccessMessage
+  requestReset(email: String!): SuccessMessage
+  resetPassword(resetToken: String!, password: String!, confirmPassword: String!): User!
+  updatePermissions(permissions: [Permission]!, userId: ID!): User
+  createEmail(email: String!): Email!
+  toggleEmail(id: ID!): Email!
+  createFundTransaction(token: String!, amount: Int!): Transaction!
+}
+
+type Query {
+  addresses: [Address]!
+  me: User
+  users: [User]!
+  emails: [Email]!
+  transactions: [Transaction]!
+}
+
+type SuccessMessage {
+  message: String
+}
+
+type User {
+  id: ID!
+  name: String!
+  email: String!
+  address: Address!
+  permissions: [Permission!]!
+  balance: Int!
+}

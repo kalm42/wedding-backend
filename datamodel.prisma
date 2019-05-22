@@ -1,0 +1,81 @@
+enum Permission {
+  ADMIN
+  USER
+  EMAILCREATE
+  EMAILUPDATE
+  EMAILDELETE
+  PERMISSIONUPDATE
+}
+
+enum TransactionType {
+  STRIPE
+  MAIL
+}
+
+type User {
+  id: ID! @id
+  name: String!
+  email: String! @unique
+  password: String!
+  address: Address! @relation(link: TABLE)
+  resetToken: String
+  resetTokenExpiry: Float
+  permissions: [Permission] @scalarList(strategy: RELATION)
+  transactions: [Transaction]! @scalarList(strategy: RELATION)
+  balance: Int! @default(value: 0)
+  emails: [Email]! @scalarList(strategy: RELATION)
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+}
+
+type Address {
+  id: ID! @id
+  hash: String! @unique
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+  line1: String
+  line2: String
+  city: String
+  state: String
+  zip: String
+}
+
+type Email {
+  id: ID! @id
+  email: String! @unique
+  isActive: Boolean! @default(value: true)
+  user: User! @relation(link: TABLE)
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+}
+
+type Mail {
+  id: ID! @id
+  to: Address!
+  foreign_id: String!
+  thumbnails: [String]! @scalarList(strategy: RELATION)
+  expected_delivery_date: DateTime!
+  send_date: DateTime
+  pages: Int!
+  user: User! @relation(link: TABLE)
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+}
+
+type Fund {
+  id: ID! @id
+  charge: String!
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+}
+
+type Transaction {
+  id: ID! @id
+  type: TransactionType!
+  mail: Mail
+  charge: Fund @relation(link: TABLE)
+  price: Int!
+  user: User! @relation(link: TABLE)
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+}
