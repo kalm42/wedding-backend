@@ -6,7 +6,7 @@ const { promisify } = require('util')
 const config = require('../config')
 const addressesController = require('../controllers/addresses')
 const { transport, makeAResponsiveEmail } = require('../mail')
-const { isPwnedPassword, requireLoggedInUser } = require('../utils')
+const { isPwnedPassword } = require('../utils')
 const stripe = require('../stripe')
 
 const Mutation = {
@@ -34,6 +34,12 @@ const Mutation = {
       throw new Error('Password is pwned')
     }
 
+    // Prep the RSVP Token
+    const rsvpToken = randomBytes(3).toString('hex')
+    // Wedding is on 6/20/20 I want to know 3 months in advance so ...
+    const weddingDate = new Date('March 20, 2020')
+    const rsvpTokenExpiry = weddingDate.getTime()
+
     // Create the user
     const user = await ctx.db.mutation
       .createUser(
@@ -44,7 +50,8 @@ const Mutation = {
             password,
             permissions: { set: ['USER'] },
             address: addressMutation,
-            emails: { create: [{ email, isActive: true }] },
+            rsvpToken,
+            rsvpTokenExpiry,
           },
         },
         info
@@ -159,54 +166,19 @@ const Mutation = {
     )
   },
 
-  createEmail(parent, args, ctx, info) {
-    requireLoggedInUser(ctx)
-    const { user } = ctx.request
-    // TODO: Add validation that email string is an email
-    return ctx.db.mutation.createEmail(
-      {
-        data: {
-          user: {
-            connect: {
-              id: user.id,
-            },
-          },
-          ...args,
-        },
-      },
-      info
-    )
-  },
-
-  async toggleEmail(parent, args, ctx, info) {
-    requireLoggedInUser(ctx)
-    const userId = ctx.request.user.id;
-    const where = { id: args.id }
-    const email = await ctx.db.query.email({ where }, `{ id, isActive, user { id } }`)
-    // TODO: Verify that current User owns the email address
-    const ownsEmail = email.user.id === userId
-    if (!ownsEmail) {
-      throw new Error('You do not have the appropriate permissions to delete this email')
-    }
-    return ctx.db.mutation.updateEmail(
-      { data: { isActive: !email.isActive }, where: { id: email.id } },
-      info
-    )
-  },
-
   async createFundTransaction(parent, args, ctx, info) {
     // Get current user - make sure they're signed in
     const { userId } = ctx.request
-    if (!userId) throw new Error('You must be signed in to add funds to your account.')
+    if (!userId) throw new Error('You must be signed in to give a gift.')
     const user = await ctx.db.query
-      .user({ where: { id: userId } }, `{ id name email balance }`)
+      .user({ where: { id: userId } }, `{ id name email }`)
       .catch(err => {
         throw new Error(err)
       })
 
     // Confirm user is paying at least $10
     const { amount } = args
-    if (amount < 1000) throw new Error('You must fund your account with at least $10.')
+    if (amount < 1000) throw new Error('You must give at least $10.')
 
     // Create stripe charge
     const charge = await stripe.charges
@@ -215,16 +187,6 @@ const Mutation = {
         currency: 'USD',
         source: args.token,
         receipt_email: user.email,
-      })
-      .catch(err => {
-        throw new Error(err)
-      })
-
-    // Update users's balance
-    await ctx.db.mutation
-      .updateUser({
-        where: { id: userId },
-        data: { balance: user.balance + amount },
       })
       .catch(err => {
         throw new Error(err)
