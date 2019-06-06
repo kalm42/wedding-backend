@@ -18,6 +18,8 @@ type User {
   resetTokenExpiry: Float
   rsvpToken: String
   rsvpTokenExpiry: Float
+  isGoing: Boolean!
+  guestCount: Int!
   permissions: [Permission] @scalarList(strategy: RELATION)
   transactions: [Transaction]! @scalarList(strategy: RELATION)
   invitations: [Invitation]! @scalarList(strategy: RELATION)

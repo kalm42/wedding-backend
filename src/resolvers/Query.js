@@ -15,13 +15,6 @@ const Query = {
     return ctx.db.query.users({}, info)
   },
 
-  emails(parent, args, ctx, info) {
-    requireLoggedInUser(ctx)
-    // return the email query
-    const userId = ctx.request.user.id
-    return ctx.db.query.emails({ where: { user: { id: userId } } }, info)
-  },
-
   transactions(parent, args, ctx, info) {
     requireLoggedInUser(ctx)
     const userId = ctx.request.user.id

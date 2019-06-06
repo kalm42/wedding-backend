@@ -6,7 +6,7 @@ const { promisify } = require('util')
 const config = require('../config')
 const addressesController = require('../controllers/addresses')
 const { transport, makeAResponsiveEmail } = require('../mail')
-const { isPwnedPassword, requireLoggedInUser } = require('../utils')
+const { isPwnedPassword } = require('../utils')
 const stripe = require('../stripe')
 
 const Mutation = {
@@ -26,13 +26,13 @@ const Mutation = {
 
     // Prep the user
     const email = args.email.toLowerCase()
-    const password = await bcrypt.hash(args.password, 10)
+    const password = await bcrypt.hash(randomBytes(6).toString('hex'), 10)
 
-    // Confirm password has not been pwned.
-    const isPwned = await isPwnedPassword(args.password)
-    if (isPwned) {
-      throw new Error('Password is pwned')
-    }
+    // Prep the RSVP Token
+    const rsvpToken = randomBytes(3).toString('hex')
+    // Wedding is on 6/20/20 I want to know 3 months in advance so ...
+    const rsvpDeadline = new Date('March 20, 2020')
+    const rsvpTokenExpiry = rsvpDeadline.getTime()
 
     // Create the user
     const user = await ctx.db.mutation
@@ -44,7 +44,8 @@ const Mutation = {
             password,
             permissions: { set: ['USER'] },
             address: addressMutation,
-            emails: { create: [{ email, isActive: true }] },
+            rsvpToken,
+            rsvpTokenExpiry,
           },
         },
         info
@@ -82,6 +83,42 @@ const Mutation = {
   signout(parent, args, ctx) {
     ctx.response.clearCookie('token')
     return { message: 'Goodbye' }
+  },
+
+  async rsvp(parent, args, ctx) {
+    // args { password, confirmPassword, rsvpToken, rsvpAnswer, guestCount }
+    if (args.password !== args.confirmPassword) {
+      throw new Error('Your passwords do not match.')
+    }
+
+    const [user] = await ctx.db.query.users({
+      where: {
+        rsvpToken: args.rsvpToken,
+        rsvpTokenExpiry_gte: Date.now(),
+      },
+    })
+    if (!user) {
+      throw new Error('This rsvp token is either expired or not valid.')
+    }
+
+    const password = await bcrypt.hash(args.password, 10)
+    const updatedUser = await ctx.db.mutation.updateUser({
+      where: { email: user.email },
+      data: {
+        password,
+        rsvpToken: null,
+        rsvpTokenExpiry: null,
+        isGoing: args.rsvpAnswer,
+        guestCount: args.guestCount,
+      },
+    })
+
+    const token = jwt.sign({ userId: updatedUser.id }, config.APP_SECRET)
+    ctx.response.cookie('token', token, {
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 24 * 365, // 1 year
+    })
+    return user
   },
 
   async requestReset(parent, { email }, ctx) {
@@ -159,54 +196,19 @@ const Mutation = {
     )
   },
 
-  createEmail(parent, args, ctx, info) {
-    requireLoggedInUser(ctx)
-    const { user } = ctx.request
-    // TODO: Add validation that email string is an email
-    return ctx.db.mutation.createEmail(
-      {
-        data: {
-          user: {
-            connect: {
-              id: user.id,
-            },
-          },
-          ...args,
-        },
-      },
-      info
-    )
-  },
-
-  async toggleEmail(parent, args, ctx, info) {
-    requireLoggedInUser(ctx)
-    const userId = ctx.request.user.id;
-    const where = { id: args.id }
-    const email = await ctx.db.query.email({ where }, `{ id, isActive, user { id } }`)
-    // TODO: Verify that current User owns the email address
-    const ownsEmail = email.user.id === userId
-    if (!ownsEmail) {
-      throw new Error('You do not have the appropriate permissions to delete this email')
-    }
-    return ctx.db.mutation.updateEmail(
-      { data: { isActive: !email.isActive }, where: { id: email.id } },
-      info
-    )
-  },
-
   async createFundTransaction(parent, args, ctx, info) {
     // Get current user - make sure they're signed in
     const { userId } = ctx.request
-    if (!userId) throw new Error('You must be signed in to add funds to your account.')
+    if (!userId) throw new Error('You must be signed in to give a gift.')
     const user = await ctx.db.query
-      .user({ where: { id: userId } }, `{ id name email balance }`)
+      .user({ where: { id: userId } }, `{ id name email }`)
       .catch(err => {
         throw new Error(err)
       })
 
     // Confirm user is paying at least $10
     const { amount } = args
-    if (amount < 1000) throw new Error('You must fund your account with at least $10.')
+    if (amount < 1000) throw new Error('You must give at least $10.')
 
     // Create stripe charge
     const charge = await stripe.charges
@@ -215,16 +217,6 @@ const Mutation = {
         currency: 'USD',
         source: args.token,
         receipt_email: user.email,
-      })
-      .catch(err => {
-        throw new Error(err)
-      })
-
-    // Update users's balance
-    await ctx.db.mutation
-      .updateUser({
-        where: { id: userId },
-        data: { balance: user.balance + amount },
       })
       .catch(err => {
         throw new Error(err)

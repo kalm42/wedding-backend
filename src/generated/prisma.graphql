@@ -1,5 +1,5 @@
 # source: https://us1.prisma.sh/kyle-melton/wedding-backend/dev
-# timestamp: Thu Jun 06 2019 10:24:25 GMT-0500 (CDT)
+# timestamp: Thu Jun 06 2019 11:46:08 GMT-0500 (CDT)
 
 type Address implements Node {
   id: ID!
@@ -1917,6 +1917,8 @@ type User implements Node {
   resetTokenExpiry: Float
   rsvpToken: String
   rsvpTokenExpiry: Float
+  isGoing: Boolean!
+  guestCount: Int!
   permissions: [Permission!]!
   transactions(where: TransactionWhereInput, orderBy: TransactionOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Transaction!]
   invitations(where: InvitationWhereInput, orderBy: InvitationOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Invitation!]
@@ -1943,6 +1945,8 @@ input UserCreateInput {
   resetTokenExpiry: Float
   rsvpToken: String
   rsvpTokenExpiry: Float
+  isGoing: Boolean!
+  guestCount: Int!
   permissions: UserCreatepermissionsInput
   address: AddressCreateOneInput!
   transactions: TransactionCreateManyWithoutUserInput
@@ -1972,6 +1976,8 @@ input UserCreateWithoutInvitationsInput {
   resetTokenExpiry: Float
   rsvpToken: String
   rsvpTokenExpiry: Float
+  isGoing: Boolean!
+  guestCount: Int!
   permissions: UserCreatepermissionsInput
   address: AddressCreateOneInput!
   transactions: TransactionCreateManyWithoutUserInput
@@ -1986,6 +1992,8 @@ input UserCreateWithoutTransactionsInput {
   resetTokenExpiry: Float
   rsvpToken: String
   rsvpTokenExpiry: Float
+  isGoing: Boolean!
+  guestCount: Int!
   permissions: UserCreatepermissionsInput
   address: AddressCreateOneInput!
   invitations: InvitationCreateManyWithoutUserInput
@@ -2017,6 +2025,10 @@ enum UserOrderByInput {
   rsvpToken_DESC
   rsvpTokenExpiry_ASC
   rsvpTokenExpiry_DESC
+  isGoing_ASC
+  isGoing_DESC
+  guestCount_ASC
+  guestCount_DESC
   createdAt_ASC
   createdAt_DESC
   updatedAt_ASC
@@ -2032,6 +2044,8 @@ type UserPreviousValues {
   resetTokenExpiry: Float
   rsvpToken: String
   rsvpTokenExpiry: Float
+  isGoing: Boolean!
+  guestCount: Int!
   permissions: [Permission!]!
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -2082,6 +2096,8 @@ input UserUpdateInput {
   resetTokenExpiry: Float
   rsvpToken: String
   rsvpTokenExpiry: Float
+  isGoing: Boolean
+  guestCount: Int
   permissions: UserUpdatepermissionsInput
   address: AddressUpdateOneRequiredInput
   transactions: TransactionUpdateManyWithoutUserInput
@@ -2096,6 +2112,8 @@ input UserUpdateManyMutationInput {
   resetTokenExpiry: Float
   rsvpToken: String
   rsvpTokenExpiry: Float
+  isGoing: Boolean
+  guestCount: Int
   permissions: UserUpdatepermissionsInput
 }
 
@@ -2125,6 +2143,8 @@ input UserUpdateWithoutInvitationsDataInput {
   resetTokenExpiry: Float
   rsvpToken: String
   rsvpTokenExpiry: Float
+  isGoing: Boolean
+  guestCount: Int
   permissions: UserUpdatepermissionsInput
   address: AddressUpdateOneRequiredInput
   transactions: TransactionUpdateManyWithoutUserInput
@@ -2138,6 +2158,8 @@ input UserUpdateWithoutTransactionsDataInput {
   resetTokenExpiry: Float
   rsvpToken: String
   rsvpTokenExpiry: Float
+  isGoing: Boolean
+  guestCount: Int
   permissions: UserUpdatepermissionsInput
   address: AddressUpdateOneRequiredInput
   invitations: InvitationUpdateManyWithoutUserInput
@@ -2446,6 +2468,32 @@ input UserWhereInput {
 
   """All values greater than or equal the given value."""
   rsvpTokenExpiry_gte: Float
+  isGoing: Boolean
+
+  """All values that are not equal to given value."""
+  isGoing_not: Boolean
+  guestCount: Int
+
+  """All values that are not equal to given value."""
+  guestCount_not: Int
+
+  """All values that are contained in given list."""
+  guestCount_in: [Int!]
+
+  """All values that are not contained in given list."""
+  guestCount_not_in: [Int!]
+
+  """All values less than the given value."""
+  guestCount_lt: Int
+
+  """All values less than or equal the given value."""
+  guestCount_lte: Int
+
+  """All values greater than the given value."""
+  guestCount_gt: Int
+
+  """All values greater than or equal the given value."""
+  guestCount_gte: Int
   createdAt: DateTime
 
   """All values that are not equal to given value."""
