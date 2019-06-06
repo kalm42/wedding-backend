@@ -1,4 +1,4 @@
-# Easy Postal Service Website Backend
+# Wedding Website Backend
 
 This is the backend service for the website. The main purpose is to scope data available to the website to a limited amount.
 

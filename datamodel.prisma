@@ -1,10 +1,6 @@
 enum Permission {
   ADMIN
   USER
-  EMAILCREATE
-  EMAILUPDATE
-  EMAILDELETE
-  PERMISSIONUPDATE
 }
 
 enum TransactionType {
@@ -20,10 +16,11 @@ type User {
   address: Address! @relation(link: TABLE)
   resetToken: String
   resetTokenExpiry: Float
+  rsvpToken: String
+  rsvpTokenExpiry: Float
   permissions: [Permission] @scalarList(strategy: RELATION)
   transactions: [Transaction]! @scalarList(strategy: RELATION)
-  balance: Int! @default(value: 0)
-  emails: [Email]! @scalarList(strategy: RELATION)
+  invitations: [Invitation]! @scalarList(strategy: RELATION)
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
 }
@@ -40,23 +37,11 @@ type Address {
   zip: String
 }
 
-type Email {
+type Transaction {
   id: ID! @id
-  email: String! @unique
-  isActive: Boolean! @default(value: true)
-  user: User! @relation(link: TABLE)
-  createdAt: DateTime! @createdAt
-  updatedAt: DateTime! @updatedAt
-}
-
-type Mail {
-  id: ID! @id
-  to: Address!
-  foreign_id: String!
-  thumbnails: [String]! @scalarList(strategy: RELATION)
-  expected_delivery_date: DateTime!
-  send_date: DateTime
-  pages: Int!
+  type: TransactionType!
+  charge: Fund @relation(link: TABLE)
+  price: Int!
   user: User! @relation(link: TABLE)
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
@@ -69,12 +54,14 @@ type Fund {
   updatedAt: DateTime! @updatedAt
 }
 
-type Transaction {
+type Invitation {
   id: ID! @id
-  type: TransactionType!
-  mail: Mail
-  charge: Fund @relation(link: TABLE)
-  price: Int!
+  to: Address!
+  foreign_id: String!
+  thumbnails: [String]! @scalarList(strategy: RELATION)
+  expected_delivery_date: DateTime!
+  send_date: DateTime
+  pages: Int!
   user: User! @relation(link: TABLE)
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
