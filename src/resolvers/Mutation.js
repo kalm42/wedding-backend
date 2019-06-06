@@ -26,19 +26,13 @@ const Mutation = {
 
     // Prep the user
     const email = args.email.toLowerCase()
-    const password = await bcrypt.hash(args.password, 10)
-
-    // Confirm password has not been pwned.
-    const isPwned = await isPwnedPassword(args.password)
-    if (isPwned) {
-      throw new Error('Password is pwned')
-    }
+    const password = await bcrypt.hash(randomBytes(6).toString('hex'), 10)
 
     // Prep the RSVP Token
     const rsvpToken = randomBytes(3).toString('hex')
     // Wedding is on 6/20/20 I want to know 3 months in advance so ...
-    const weddingDate = new Date('March 20, 2020')
-    const rsvpTokenExpiry = weddingDate.getTime()
+    const rsvpDeadline = new Date('March 20, 2020')
+    const rsvpTokenExpiry = rsvpDeadline.getTime()
 
     // Create the user
     const user = await ctx.db.mutation
@@ -89,6 +83,42 @@ const Mutation = {
   signout(parent, args, ctx) {
     ctx.response.clearCookie('token')
     return { message: 'Goodbye' }
+  },
+
+  async rsvp(parent, args, ctx) {
+    // args { password, confirmPassword, rsvpToken, rsvpAnswer, guestCount }
+    if (args.password !== args.confirmPassword) {
+      throw new Error('Your passwords do not match.')
+    }
+
+    const [user] = await ctx.db.query.users({
+      where: {
+        rsvpToken: args.rsvpToken,
+        rsvpTokenExpiry_gte: Date.now(),
+      },
+    })
+    if (!user) {
+      throw new Error('This rsvp token is either expired or not valid.')
+    }
+
+    const password = await bcrypt.hash(args.password, 10)
+    const updatedUser = await ctx.db.mutation.updateUser({
+      where: { email: user.email },
+      data: {
+        password,
+        rsvpToken: null,
+        rsvpTokenExpiry: null,
+        isGoing: args.rsvpAnswer,
+        guestCount: args.guestCount,
+      },
+    })
+
+    const token = jwt.sign({ userId: updatedUser.id }, config.APP_SECRET)
+    ctx.response.cookie('token', token, {
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 24 * 365, // 1 year
+    })
+    return user
   },
 
   async requestReset(parent, { email }, ctx) {
