@@ -1,5 +1,5 @@
 # source: https://us1.prisma.sh/kyle-melton/wedding-backend/dev
-# timestamp: Thu Jun 06 2019 11:46:08 GMT-0500 (CDT)
+# timestamp: Fri Jun 07 2019 12:14:45 GMT-0500 (CDT)
 
 type Address implements Node {
   id: ID!
@@ -1945,8 +1945,8 @@ input UserCreateInput {
   resetTokenExpiry: Float
   rsvpToken: String
   rsvpTokenExpiry: Float
-  isGoing: Boolean!
-  guestCount: Int!
+  isGoing: Boolean
+  guestCount: Int
   permissions: UserCreatepermissionsInput
   address: AddressCreateOneInput!
   transactions: TransactionCreateManyWithoutUserInput
@@ -1976,8 +1976,8 @@ input UserCreateWithoutInvitationsInput {
   resetTokenExpiry: Float
   rsvpToken: String
   rsvpTokenExpiry: Float
-  isGoing: Boolean!
-  guestCount: Int!
+  isGoing: Boolean
+  guestCount: Int
   permissions: UserCreatepermissionsInput
   address: AddressCreateOneInput!
   transactions: TransactionCreateManyWithoutUserInput
@@ -1992,8 +1992,8 @@ input UserCreateWithoutTransactionsInput {
   resetTokenExpiry: Float
   rsvpToken: String
   rsvpTokenExpiry: Float
-  isGoing: Boolean!
-  guestCount: Int!
+  isGoing: Boolean
+  guestCount: Int
   permissions: UserCreatepermissionsInput
   address: AddressCreateOneInput!
   invitations: InvitationCreateManyWithoutUserInput

@@ -13,7 +13,13 @@ type Mutation {
   ): User!
   signin(email: String!, password: String!): User!
   signout: SuccessMessage
-  rsvp: User!
+  rsvp(
+    password: String
+    confirmPassword: String
+    rsvpToken: String!
+    rsvpAnswer: String!
+    guestCount: String!
+  ): User!
   requestReset(email: String!): SuccessMessage
   resetPassword(resetToken: String!, password: String!, confirmPassword: String!): User!
   updatePermissions(permissions: [Permission]!, userId: ID!): User
