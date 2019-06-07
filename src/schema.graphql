@@ -1,16 +1,15 @@
 # import * from './generated/prisma.graphql'
 
 type Mutation {
-  signup(
+  inviteGuest(
     name: String!
     email: String!
-    password: String!
     line1: String!
     line2: String
     city: String!
     state: String!
     zip: String!
-  ): User!
+  ): SuccessMessage
   signin(email: String!, password: String!): User!
   signout: SuccessMessage
   rsvp(

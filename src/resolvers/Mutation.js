@@ -10,7 +10,7 @@ const { isPwnedPassword } = require('../utils')
 const stripe = require('../stripe')
 
 const Mutation = {
-  async signup(parent, args, ctx, info) {
+  async inviteGuest(parent, args, ctx, info) {
     // Does the user's address exist in the database
     const { line1, line2, city, state, zip } = args
     const address = { line1, line2, city, state, zip }
@@ -54,13 +54,7 @@ const Mutation = {
         throw new Error(err)
       })
 
-    // Return the user
-    const token = jwt.sign({ userId: user.id }, process.env.APP_SECRET)
-    ctx.response.cookie('token', token, {
-      httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24 * 365, // 1 year
-    })
-    return user
+    return { message: 'Guest Added' }
   },
 
   async signin(parent, { email, password }, ctx) {
