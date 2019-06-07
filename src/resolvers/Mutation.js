@@ -86,8 +86,15 @@ const Mutation = {
   },
 
   async rsvp(parent, args, ctx) {
+    // If the user is not going, they should not have to provide a password
+    // it will also mean that they cannot change their mind.
+    const isGoing = args.rsvpAnswer === 'true'
+
+    // If they're not coming no matter what they wrote in guest count is zero
+    const guestCount = isGoing ? Number(args.guestCount) : 0
+
     // args { password, confirmPassword, rsvpToken, rsvpAnswer, guestCount }
-    if (args.password !== args.confirmPassword) {
+    if (isGoing && args.password !== args.confirmPassword) {
       throw new Error('Your passwords do not match.')
     }
 
@@ -101,15 +108,17 @@ const Mutation = {
       throw new Error('This rsvp token is either expired or not valid.')
     }
 
-    const password = await bcrypt.hash(args.password, 10)
+    const p = isGoing ? args.password : randomBytes(6).toString('hex')
+    const password = await bcrypt.hash(p, 10)
+
     const updatedUser = await ctx.db.mutation.updateUser({
       where: { email: user.email },
       data: {
         password,
+        isGoing,
+        guestCount,
         rsvpToken: null,
         rsvpTokenExpiry: null,
-        isGoing: args.rsvpAnswer,
-        guestCount: args.guestCount,
       },
     })
 
