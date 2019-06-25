@@ -9,10 +9,16 @@ const Query = {
   },
 
   users(parent, args, ctx, info) {
-    requireLoggedInUser(ctx)
-    // hasPermissions(ctx.request.user, ['ADMIN', 'PERMISSIONUPDATE'])
+    // requireLoggedInUser(ctx)
+    // hasPermissions(ctx.request.user, ['ADMIN'])
     // return the users query
-    return ctx.db.query.users({}, info)
+    return ctx.db.query.users({ orderBy: 'name_ASC' }, info)
+  },
+  user(parent, args, ctx, info) {
+    // requireLoggedInUser(ctx)
+    // hasPermissions(ctx.request.user, ['ADMIN'])
+    // return the users query
+    return ctx.db.query.user(args.where, info)
   },
 
   transactions(parent, args, ctx, info) {

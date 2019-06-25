@@ -57,6 +57,20 @@ const Mutation = {
     return { message: 'Guest Added' }
   },
 
+  async updateGuest(parent, args, ctx, info) {
+    const updates = { ...args }
+    delete updates.id
+    return ctx.db.mutation.updateUser(
+      {
+        data: updates,
+        where: {
+          id: args.id,
+        },
+      },
+      info
+    )
+  },
+
   async signin(parent, { email, password }, ctx) {
     const user = await ctx.db.query.user({ where: { email } })
     if (!user) {
