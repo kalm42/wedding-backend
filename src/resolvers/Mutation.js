@@ -57,7 +57,16 @@ const Mutation = {
     return { message: 'Guest Added' }
   },
 
-  async updateGuest(parent, args, ctx, info) {
+  async updateUser(parent, args, ctx, info) {
+    /**
+     *   updateUser(
+          id: ID!
+          name: String
+          email: String
+          isGoing: Boolean
+          guestCount: Int
+        ): User
+     */
     const updates = { ...args }
     delete updates.id
     return ctx.db.mutation.updateUser(
