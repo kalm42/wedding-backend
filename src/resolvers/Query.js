@@ -3,6 +3,11 @@ const { requireLoggedInUser } = require('../utils')
 
 const Query = {
   addresses: forwardTo('db'),
+  address(parent, args, ctx, info) {
+    // requireLoggedInUser(ctx)
+    // hasPermissions(ctx.request.user, ['ADMIN'])
+    return ctx.db.query.address({ where: { id: args.id } }, info)
+  },
   me(parent, args, ctx, info) {
     if (!ctx.request.userId) return null
     return ctx.db.query.user({ where: { id: ctx.request.userId } }, info)

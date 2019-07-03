@@ -269,6 +269,23 @@ const Mutation = {
       info
     )
   },
+
+  async updateAddress(parent, args, ctx, info) {
+    // TODO: require logged in
+    // TODO: require user to be self or admin
+    const updates = { ...args }
+    updates.hash = addressesController.getHash(updates)
+    delete updates.id
+    return ctx.db.mutation.updateAddress(
+      {
+        data: updates,
+        where: {
+          id: args.id,
+        },
+      },
+      info
+    )
+  },
 }
 
 module.exports = Mutation

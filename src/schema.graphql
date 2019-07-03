@@ -24,10 +24,19 @@ type Mutation {
   resetPassword(resetToken: String!, password: String!, confirmPassword: String!): User!
   updatePermissions(permissions: [Permission]!, userId: ID!): User
   createFundTransaction(token: String!, amount: Int!): Transaction!
+  updateAddress(
+    id: ID!
+    line1: String
+    line2: String
+    city: String
+    state: String
+    zip: String
+  ): Address!
 }
 
 type Query {
   addresses: [Address]!
+  address(where: AddressWhereUniqueInput!): Address
   me: User
   users: [User]!
   user(where: UserWhereUniqueInput!): User
