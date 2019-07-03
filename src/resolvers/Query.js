@@ -6,7 +6,7 @@ const Query = {
   address(parent, args, ctx, info) {
     // requireLoggedInUser(ctx)
     // hasPermissions(ctx.request.user, ['ADMIN'])
-    return ctx.db.query.address({ where: { id: args.id } }, info)
+    return ctx.db.query.address(args.where, info)
   },
   me(parent, args, ctx, info) {
     if (!ctx.request.userId) return null
