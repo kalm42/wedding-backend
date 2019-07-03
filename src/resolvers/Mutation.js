@@ -59,7 +59,7 @@ const Mutation = {
 
   async deleteGuest(parent, args, ctx, info) {
     const where = { id: args.id }
-    const guest = await ctx.db.query.user({ where }, `{ id }`)
+    // const guest = await ctx.db.query.user({ where }, `{ id }`)
     // logged in
     // is admin or is self
     return ctx.db.mutation.deleteUser({ where }, info)
