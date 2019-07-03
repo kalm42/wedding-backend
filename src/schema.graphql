@@ -10,6 +10,7 @@ type Mutation {
     state: String!
     zip: String!
   ): SuccessMessage
+  deleteGuest(id: ID!): User
   updateUser(id: ID!, name: String, email: String, isGoing: Boolean, guestCount: Int): User
   signin(email: String!, password: String!): User!
   signout: SuccessMessage

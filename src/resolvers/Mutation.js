@@ -6,7 +6,7 @@ const { promisify } = require('util')
 const config = require('../config')
 const addressesController = require('../controllers/addresses')
 const { transport, makeAResponsiveEmail } = require('../mail')
-const { isPwnedPassword } = require('../utils')
+// const { isPwnedPassword, requireLoggedInUser, hasPermissions } = require('../utils')
 const stripe = require('../stripe')
 
 const Mutation = {
@@ -55,6 +55,14 @@ const Mutation = {
       })
 
     return { message: 'Guest Added' }
+  },
+
+  async deleteGuest(parent, args, ctx, info) {
+    const where = { id: args.id }
+    const guest = await ctx.db.query.user({ where }, `{ id }`)
+    // logged in
+    // is admin or is self
+    return ctx.db.mutation.deleteUser({ where }, info)
   },
 
   async updateUser(parent, args, ctx, info) {
