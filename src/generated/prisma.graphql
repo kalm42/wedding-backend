@@ -1,5 +1,5 @@
 # source: https://us1.prisma.sh/kyle-melton/wedding-backend/dev
-# timestamp: Mon Jul 15 2019 12:15:53 GMT-0600 (Mountain Daylight Time)
+# timestamp: Mon Jul 15 2019 14:12:43 GMT-0600 (Mountain Daylight Time)
 
 type Address implements Node {
   id: ID!
@@ -779,6 +779,11 @@ input FundWhereUniqueInput {
   id: ID
 }
 
+enum Gift {
+  GYM
+  HONEYMOON
+}
+
 type Invitation implements Node {
   id: ID!
   to: Address!
@@ -1489,6 +1494,7 @@ type Transaction implements Node {
   type: TransactionType!
   charge: Fund
   price: Int!
+  gift: Gift!
   user: User
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -1508,6 +1514,7 @@ input TransactionCreateInput {
   id: ID
   type: TransactionType!
   price: Int!
+  gift: Gift!
   charge: FundCreateOneInput
   user: UserCreateOneWithoutTransactionsInput
 }
@@ -1521,6 +1528,7 @@ input TransactionCreateWithoutUserInput {
   id: ID
   type: TransactionType!
   price: Int!
+  gift: Gift!
   charge: FundCreateOneInput
 }
 
@@ -1540,6 +1548,8 @@ enum TransactionOrderByInput {
   type_DESC
   price_ASC
   price_DESC
+  gift_ASC
+  gift_DESC
   createdAt_ASC
   createdAt_DESC
   updatedAt_ASC
@@ -1550,6 +1560,7 @@ type TransactionPreviousValues {
   id: ID!
   type: TransactionType!
   price: Int!
+  gift: Gift!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -1635,6 +1646,16 @@ input TransactionScalarWhereInput {
 
   """All values greater than or equal the given value."""
   price_gte: Int
+  gift: Gift
+
+  """All values that are not equal to given value."""
+  gift_not: Gift
+
+  """All values that are contained in given list."""
+  gift_in: [Gift!]
+
+  """All values that are not contained in given list."""
+  gift_not_in: [Gift!]
   createdAt: DateTime
 
   """All values that are not equal to given value."""
@@ -1726,6 +1747,7 @@ enum TransactionType {
 input TransactionUpdateInput {
   type: TransactionType
   price: Int
+  gift: Gift
   charge: FundUpdateOneInput
   user: UserUpdateOneWithoutTransactionsInput
 }
@@ -1733,11 +1755,13 @@ input TransactionUpdateInput {
 input TransactionUpdateManyDataInput {
   type: TransactionType
   price: Int
+  gift: Gift
 }
 
 input TransactionUpdateManyMutationInput {
   type: TransactionType
   price: Int
+  gift: Gift
 }
 
 input TransactionUpdateManyWithoutUserInput {
@@ -1760,6 +1784,7 @@ input TransactionUpdateManyWithWhereNestedInput {
 input TransactionUpdateWithoutUserDataInput {
   type: TransactionType
   price: Int
+  gift: Gift
   charge: FundUpdateOneInput
 }
 
@@ -1855,6 +1880,16 @@ input TransactionWhereInput {
 
   """All values greater than or equal the given value."""
   price_gte: Int
+  gift: Gift
+
+  """All values that are not equal to given value."""
+  gift_not: Gift
+
+  """All values that are contained in given list."""
+  gift_in: [Gift!]
+
+  """All values that are not contained in given list."""
+  gift_not_in: [Gift!]
   createdAt: DateTime
 
   """All values that are not equal to given value."""

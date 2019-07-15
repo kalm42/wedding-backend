@@ -8,6 +8,11 @@ enum TransactionType {
   MAIL
 }
 
+enum Gift {
+  GYM
+  HONEYMOON
+}
+
 type User {
   id: ID! @id
   name: String!
@@ -44,6 +49,7 @@ type Transaction {
   type: TransactionType!
   charge: Fund @relation(link: TABLE)
   price: Int!
+  gift: Gift!
   user: User @relation(link: TABLE)
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt

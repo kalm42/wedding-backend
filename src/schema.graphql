@@ -24,7 +24,7 @@ type Mutation {
   requestReset(email: String!): SuccessMessage
   resetPassword(resetToken: String!, password: String!, confirmPassword: String!): User!
   updatePermissions(permissions: [Permission]!, userId: ID!): User
-  createFundTransaction(token: String!, amount: Int!): Transaction!
+  createFundTransaction(token: String!, amount: Int!, gift: String!): Transaction!
   updateAddress(
     id: ID!
     line1: String

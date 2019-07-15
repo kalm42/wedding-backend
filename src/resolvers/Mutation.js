@@ -231,17 +231,16 @@ const Mutation = {
   },
 
   async createFundTransaction(parent, args, ctx, info) {
-    // Get current user - make sure they're signed in
-    const { userId } = ctx.request
-    if (!userId) throw new Error('You must be signed in to give a gift.')
-    const user = await ctx.db.query
-      .user({ where: { id: userId } }, `{ id name email }`)
-      .catch(err => {
-        throw new Error(err)
-      })
+    const { token, amount, gift } = args
+    const isLoggedIn = !!ctx.request.userId
+
+    let email = null
+    if (isLoggedIn) {
+      // eslint-disable-next-line prefer-destructuring
+      email = ctx.request.user.email
+    }
 
     // Confirm user is paying at least $10
-    const { amount } = args
     if (amount < 1000) throw new Error('You must give at least $10.')
 
     // Create stripe charge
@@ -249,8 +248,8 @@ const Mutation = {
       .create({
         amount,
         currency: 'USD',
-        source: args.token,
-        receipt_email: user.email,
+        source: token,
+        // receipt_email: user.email,
       })
       .catch(err => {
         throw new Error(err)
@@ -267,11 +266,12 @@ const Mutation = {
               charge: charge.id,
             },
           },
-          user: {
-            connect: {
-              id: userId,
-            },
-          },
+          gift: 'GYM',
+          // user: {
+          //   connect: {
+          //     id: userId,
+          //   },
+          // },
         },
       },
       info
