@@ -44,7 +44,7 @@ type Transaction {
   type: TransactionType!
   charge: Fund @relation(link: TABLE)
   price: Int!
-  user: User! @relation(link: TABLE)
+  user: User @relation(link: TABLE)
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
 }

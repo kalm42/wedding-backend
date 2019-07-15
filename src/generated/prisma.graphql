@@ -1,5 +1,5 @@
 # source: https://us1.prisma.sh/kyle-melton/wedding-backend/dev
-# timestamp: Fri Jun 07 2019 12:14:45 GMT-0500 (CDT)
+# timestamp: Mon Jul 15 2019 12:15:53 GMT-0600 (Mountain Daylight Time)
 
 type Address implements Node {
   id: ID!
@@ -1489,7 +1489,7 @@ type Transaction implements Node {
   type: TransactionType!
   charge: Fund
   price: Int!
-  user: User!
+  user: User
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -1509,7 +1509,7 @@ input TransactionCreateInput {
   type: TransactionType!
   price: Int!
   charge: FundCreateOneInput
-  user: UserCreateOneWithoutTransactionsInput!
+  user: UserCreateOneWithoutTransactionsInput
 }
 
 input TransactionCreateManyWithoutUserInput {
@@ -1727,7 +1727,7 @@ input TransactionUpdateInput {
   type: TransactionType
   price: Int
   charge: FundUpdateOneInput
-  user: UserUpdateOneRequiredWithoutTransactionsInput
+  user: UserUpdateOneWithoutTransactionsInput
 }
 
 input TransactionUpdateManyDataInput {
@@ -2124,9 +2124,11 @@ input UserUpdateOneRequiredWithoutInvitationsInput {
   upsert: UserUpsertWithoutInvitationsInput
 }
 
-input UserUpdateOneRequiredWithoutTransactionsInput {
+input UserUpdateOneWithoutTransactionsInput {
   create: UserCreateWithoutTransactionsInput
   connect: UserWhereUniqueInput
+  disconnect: Boolean
+  delete: Boolean
   update: UserUpdateWithoutTransactionsDataInput
   upsert: UserUpsertWithoutTransactionsInput
 }
