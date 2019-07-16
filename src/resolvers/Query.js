@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 const { forwardTo } = require('prisma-binding')
 const { requireLoggedInUser } = require('../utils')
 
@@ -33,6 +34,32 @@ const Query = {
       { where: { user: { id: userId } }, orderBy: 'createdAt_DESC' },
       info
     )
+  },
+
+  async giftStatus(parent, args, ctx, info) {
+    const transactions = await ctx.db.query.transactions({}, `{id price gift}`)
+    if (!transactions || transactions.length === 0) {
+      return { gym: 0, honeymoon: 0 }
+    }
+
+    let gymGift = 0
+    let honeymoonGift = 0
+    transactions.map(transaction => {
+      if (transaction.gift === 'GYM') {
+        gymGift += transaction.price
+      } else {
+        honeymoonGift += transaction.price
+      }
+      return transaction
+    })
+
+    const total = gymGift + honeymoonGift
+    const gym = Math.round((gymGift / total) * 100)
+    const honeymoon = Math.round((honeymoonGift / total) * 100)
+    if (gym + honeymoon !== 100) {
+      return { gym, honeymoon: 100 - gym }
+    }
+    return { gym, honeymoon }
   },
 }
 

@@ -42,10 +42,16 @@ type Query {
   users: [User]!
   user(where: UserWhereUniqueInput!): User
   transactions(where: TransactionWhereInput): [Transaction]!
+  giftStatus: GiftStatus
 }
 
 type SuccessMessage {
   message: String
+}
+
+type GiftStatus {
+  gym: Int
+  honeymoon: Int
 }
 
 type User {
