@@ -233,7 +233,6 @@ const Mutation = {
   async createFundTransaction(parent, args, ctx, info) {
     const { token, amount, gift } = args
     const isLoggedIn = !!ctx.request.userId
-
     let email = null
     if (isLoggedIn) {
       // eslint-disable-next-line prefer-destructuring
@@ -244,38 +243,39 @@ const Mutation = {
     if (amount < 1000) throw new Error('You must give at least $10.')
 
     // Create stripe charge
-    const charge = await stripe.charges
-      .create({
-        amount,
-        currency: 'USD',
-        source: token,
-        // receipt_email: user.email,
-      })
-      .catch(err => {
-        throw new Error(err)
-      })
+    const charge = {
+      amount,
+      currency: 'USD',
+      source: token,
+    }
+    if (isLoggedIn) {
+      charge.receipt_email = email
+    }
+    const stripeCharge = await stripe.charges.create({ ...charge }).catch(err => {
+      throw new Error(err)
+    })
 
     // return transaction entry
-    return ctx.db.mutation.createTransaction(
-      {
-        data: {
-          type: 'STRIPE',
-          price: amount,
-          charge: {
-            create: {
-              charge: charge.id,
-            },
+    const transactionMutation = {
+      data: {
+        type: 'STRIPE',
+        price: amount,
+        charge: {
+          create: {
+            charge: stripeCharge.id,
           },
-          gift: 'GYM',
-          // user: {
-          //   connect: {
-          //     id: userId,
-          //   },
-          // },
         },
+        gift: gift.toUpperCase() === 'GYM' ? 'GYM' : 'HONEYMOON',
       },
-      info
-    )
+    }
+    if (isLoggedIn) {
+      transactionMutation.data.user = {
+        connect: {
+          id: ctx.request.userId,
+        },
+      }
+    }
+    return ctx.db.mutation.createTransaction({ ...transactionMutation }, info)
   },
 
   async updateAddress(parent, args, ctx, info) {
