@@ -41,7 +41,7 @@ type Query {
   me: User
   users: [User]!
   user(where: UserWhereUniqueInput!): User
-  transactions: [Transaction]!
+  transactions(where: TransactionWhereInput): [Transaction]!
 }
 
 type SuccessMessage {
