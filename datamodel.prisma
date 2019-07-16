@@ -50,6 +50,7 @@ type Transaction {
   charge: Fund @relation(link: TABLE)
   price: Int!
   gift: Gift!
+  name: String!
   user: User @relation(link: TABLE)
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt

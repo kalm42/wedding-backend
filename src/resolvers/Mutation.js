@@ -231,7 +231,7 @@ const Mutation = {
   },
 
   async createFundTransaction(parent, args, ctx, info) {
-    const { token, amount, gift } = args
+    const { token, amount, gift, name } = args
     const isLoggedIn = !!ctx.request.userId
     let email = null
     if (isLoggedIn) {
@@ -274,6 +274,9 @@ const Mutation = {
           id: ctx.request.userId,
         },
       }
+      transactionMutation.data.name = ctx.request.user.name
+    } else {
+      transactionMutation.data.name = name
     }
     return ctx.db.mutation.createTransaction({ ...transactionMutation }, info)
   },

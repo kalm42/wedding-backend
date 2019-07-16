@@ -1,5 +1,5 @@
 # source: https://us1.prisma.sh/kyle-melton/wedding-backend/dev
-# timestamp: Mon Jul 15 2019 14:12:43 GMT-0600 (Mountain Daylight Time)
+# timestamp: Tue Jul 16 2019 14:14:39 GMT-0600 (Mountain Daylight Time)
 
 type Address implements Node {
   id: ID!
@@ -1495,6 +1495,7 @@ type Transaction implements Node {
   charge: Fund
   price: Int!
   gift: Gift!
+  name: String!
   user: User
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -1515,6 +1516,7 @@ input TransactionCreateInput {
   type: TransactionType!
   price: Int!
   gift: Gift!
+  name: String!
   charge: FundCreateOneInput
   user: UserCreateOneWithoutTransactionsInput
 }
@@ -1529,6 +1531,7 @@ input TransactionCreateWithoutUserInput {
   type: TransactionType!
   price: Int!
   gift: Gift!
+  name: String!
   charge: FundCreateOneInput
 }
 
@@ -1550,6 +1553,8 @@ enum TransactionOrderByInput {
   price_DESC
   gift_ASC
   gift_DESC
+  name_ASC
+  name_DESC
   createdAt_ASC
   createdAt_DESC
   updatedAt_ASC
@@ -1561,6 +1566,7 @@ type TransactionPreviousValues {
   type: TransactionType!
   price: Int!
   gift: Gift!
+  name: String!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -1656,6 +1662,46 @@ input TransactionScalarWhereInput {
 
   """All values that are not contained in given list."""
   gift_not_in: [Gift!]
+  name: String
+
+  """All values that are not equal to given value."""
+  name_not: String
+
+  """All values that are contained in given list."""
+  name_in: [String!]
+
+  """All values that are not contained in given list."""
+  name_not_in: [String!]
+
+  """All values less than the given value."""
+  name_lt: String
+
+  """All values less than or equal the given value."""
+  name_lte: String
+
+  """All values greater than the given value."""
+  name_gt: String
+
+  """All values greater than or equal the given value."""
+  name_gte: String
+
+  """All values containing the given string."""
+  name_contains: String
+
+  """All values not containing the given string."""
+  name_not_contains: String
+
+  """All values starting with the given string."""
+  name_starts_with: String
+
+  """All values not starting with the given string."""
+  name_not_starts_with: String
+
+  """All values ending with the given string."""
+  name_ends_with: String
+
+  """All values not ending with the given string."""
+  name_not_ends_with: String
   createdAt: DateTime
 
   """All values that are not equal to given value."""
@@ -1748,6 +1794,7 @@ input TransactionUpdateInput {
   type: TransactionType
   price: Int
   gift: Gift
+  name: String
   charge: FundUpdateOneInput
   user: UserUpdateOneWithoutTransactionsInput
 }
@@ -1756,12 +1803,14 @@ input TransactionUpdateManyDataInput {
   type: TransactionType
   price: Int
   gift: Gift
+  name: String
 }
 
 input TransactionUpdateManyMutationInput {
   type: TransactionType
   price: Int
   gift: Gift
+  name: String
 }
 
 input TransactionUpdateManyWithoutUserInput {
@@ -1785,6 +1834,7 @@ input TransactionUpdateWithoutUserDataInput {
   type: TransactionType
   price: Int
   gift: Gift
+  name: String
   charge: FundUpdateOneInput
 }
 
@@ -1890,6 +1940,46 @@ input TransactionWhereInput {
 
   """All values that are not contained in given list."""
   gift_not_in: [Gift!]
+  name: String
+
+  """All values that are not equal to given value."""
+  name_not: String
+
+  """All values that are contained in given list."""
+  name_in: [String!]
+
+  """All values that are not contained in given list."""
+  name_not_in: [String!]
+
+  """All values less than the given value."""
+  name_lt: String
+
+  """All values less than or equal the given value."""
+  name_lte: String
+
+  """All values greater than the given value."""
+  name_gt: String
+
+  """All values greater than or equal the given value."""
+  name_gte: String
+
+  """All values containing the given string."""
+  name_contains: String
+
+  """All values not containing the given string."""
+  name_not_contains: String
+
+  """All values starting with the given string."""
+  name_starts_with: String
+
+  """All values not starting with the given string."""
+  name_not_starts_with: String
+
+  """All values ending with the given string."""
+  name_ends_with: String
+
+  """All values not ending with the given string."""
+  name_not_ends_with: String
   createdAt: DateTime
 
   """All values that are not equal to given value."""
