@@ -6,11 +6,15 @@ const { promisify } = require('util')
 const config = require('../config')
 const addressesController = require('../controllers/addresses')
 const { transport, makeAResponsiveEmail } = require('../mail')
-// const { isPwnedPassword, requireLoggedInUser, hasPermissions } = require('../utils')
+const { isPwnedPassword, requireLoggedInUser, hasPermissions } = require('../utils')
 const stripe = require('../stripe')
 
 const Mutation = {
   async inviteGuest(parent, args, ctx, info) {
+    // User must be logged in and admin.
+    requireLoggedInUser(ctx)
+    hasPermissions(ctx.request.user, ['ADMIN'])
+
     // Does the user's address exist in the database
     const { line1, line2, city, state, zip } = args
     const address = { line1, line2, city, state, zip }
@@ -30,6 +34,8 @@ const Mutation = {
 
     // Prep the RSVP Token
     const rsvpToken = randomBytes(3).toString('hex')
+    // TODO: Verify not already assigned
+
     // Wedding is on 6/20/20 I want to know 3 months in advance so ...
     const rsvpDeadline = new Date('March 20, 2020')
     const rsvpTokenExpiry = rsvpDeadline.getTime()
@@ -58,23 +64,16 @@ const Mutation = {
   },
 
   async deleteGuest(parent, args, ctx, info) {
-    const where = { id: args.id }
-    // const guest = await ctx.db.query.user({ where }, `{ id }`)
-    // logged in
-    // is admin or is self
-    return ctx.db.mutation.deleteUser({ where }, info)
+    // User must be admin
+    requireLoggedInUser(ctx)
+    hasPermissions(ctx.request.user, ['ADMIN'])
+    return ctx.db.mutation.deleteUser({ where: { id: args.id } }, info)
   },
 
   async updateUser(parent, args, ctx, info) {
-    /**
-     *   updateUser(
-          id: ID!
-          name: String
-          email: String
-          isGoing: Boolean
-          guestCount: Int
-        ): User
-     */
+    // User must be admin or self
+    requireLoggedInUser(ctx)
+    hasPermissions(ctx.request.user, ['ADMIN'], args.id)
     const updates = { ...args }
     delete updates.id
     return ctx.db.mutation.updateUser(
@@ -217,10 +216,9 @@ const Mutation = {
   },
 
   updatePermissions(parent, args, ctx, info) {
+    requireLoggedInUser(ctx)
+    hasPermissions(ctx.request.user, ['ADMIN', 'PERMISSIONUPDATE'])
     const { userId, permissions } = args
-    // requireLoggedInUser(ctx)
-    // const { user } = ctx.request
-    // hasPermissions(user, ['ADMIN', 'PERMISSIONUPDATE'])
     return ctx.db.mutation.updateUser(
       {
         data: { permissions: { set: permissions } },
@@ -282,8 +280,9 @@ const Mutation = {
   },
 
   async updateAddress(parent, args, ctx, info) {
-    // TODO: require logged in
-    // TODO: require user to be self or admin
+    // User must be admin or self
+    requireLoggedInUser(ctx)
+    hasPermissions(ctx.request.user, ['ADMIN'], args.id)
     const updates = { ...args }
     updates.hash = addressesController.getHash(updates)
     delete updates.id

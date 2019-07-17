@@ -1,12 +1,12 @@
 /* eslint-disable no-unused-vars */
 const { forwardTo } = require('prisma-binding')
-const { requireLoggedInUser } = require('../utils')
+const { requireLoggedInUser, hasPermissions } = require('../utils')
 
 const Query = {
   addresses: forwardTo('db'),
   address(parent, args, ctx, info) {
-    // requireLoggedInUser(ctx)
-    // hasPermissions(ctx.request.user, ['ADMIN'])
+    requireLoggedInUser(ctx)
+    hasPermissions(ctx.request.user, ['ADMIN'])
     return ctx.db.query.address(args.where, info)
   },
   me(parent, args, ctx, info) {
@@ -15,14 +15,14 @@ const Query = {
   },
 
   users(parent, args, ctx, info) {
-    // requireLoggedInUser(ctx)
-    // hasPermissions(ctx.request.user, ['ADMIN'])
+    requireLoggedInUser(ctx)
+    hasPermissions(ctx.request.user, ['ADMIN'])
     // return the users query
     return ctx.db.query.users({ orderBy: 'name_ASC' }, info)
   },
   user(parent, args, ctx, info) {
-    // requireLoggedInUser(ctx)
-    // hasPermissions(ctx.request.user, ['ADMIN'])
+    requireLoggedInUser(ctx)
+    hasPermissions(ctx.request.user, ['ADMIN'])
     // return the users query
     return ctx.db.query.user(args.where, info)
   },
