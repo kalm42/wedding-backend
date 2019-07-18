@@ -1,9 +1,13 @@
+/* eslint-disable func-names */
+/* eslint-disable no-console */
 /* eslint no-unused-vars: warn */
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const { randomBytes } = require('crypto')
 const { promisify } = require('util')
 const config = require('../config')
+// eslint-disable-next-line import/order
+const lob = require('../controllers/lob')
 const addressesController = require('../controllers/addresses')
 const { transport, makeAResponsiveEmail } = require('../mail')
 const { isPwnedPassword, requireLoggedInUser, hasPermissions } = require('../utils')
@@ -30,7 +34,7 @@ const Mutation = {
 
     // Prep the user
     const email = args.email.toLowerCase()
-    const password = await bcrypt.hash(randomBytes(6).toString('hex'), 10)
+    const password = await bcrypt.hash(randomBytes(8).toString('hex'), 10)
 
     // Prep the RSVP Token
     const rsvpToken = randomBytes(3).toString('hex')
@@ -75,6 +79,11 @@ const Mutation = {
     requireLoggedInUser(ctx)
     hasPermissions(ctx.request.user, ['ADMIN'], args.id)
     const updates = { ...args }
+    if (updates.password && isPwnedPassword(updates.password)) {
+      throw new Error(
+        'Your password has been found on the dark web. You cannot use it here, and you should change it anywhere you have used it.'
+      )
+    }
     delete updates.id
     return ctx.db.mutation.updateUser(
       {
@@ -200,7 +209,11 @@ const Mutation = {
     if (!user) {
       throw new Error('This token is either expired or not valid.')
     }
-
+    if (isPwnedPassword(args.password)) {
+      throw new Error(
+        'Your password has been found on the dark web. You cannot use it here, and you should change it anywhere you have used it.'
+      )
+    }
     const password = await bcrypt.hash(args.password, 10)
     const updatedUser = await ctx.db.mutation.updateUser({
       where: { email: user.email },
@@ -237,10 +250,8 @@ const Mutation = {
       email = ctx.request.user.email
     }
 
-    // Confirm user is paying at least $10
     if (amount < 1000) throw new Error('You must give at least $10.')
 
-    // Create stripe charge
     const charge = {
       amount,
       currency: 'USD',
@@ -253,7 +264,6 @@ const Mutation = {
       throw new Error(err)
     })
 
-    // return transaction entry
     const transactionMutation = {
       data: {
         type: 'STRIPE',
