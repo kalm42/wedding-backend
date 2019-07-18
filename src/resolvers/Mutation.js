@@ -1,16 +1,24 @@
+/* eslint-disable func-names */
+/* eslint-disable no-console */
 /* eslint no-unused-vars: warn */
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const { randomBytes } = require('crypto')
 const { promisify } = require('util')
 const config = require('../config')
+// eslint-disable-next-line import/order
+const createPostcard = require('../controllers/lob')
 const addressesController = require('../controllers/addresses')
 const { transport, makeAResponsiveEmail } = require('../mail')
-const { isPwnedPassword, requireLoggedInUser } = require('../utils')
+const { isPwnedPassword, requireLoggedInUser, hasPermissions } = require('../utils')
 const stripe = require('../stripe')
 
 const Mutation = {
-  async signup(parent, args, ctx, info) {
+  async inviteGuest(parent, args, ctx, info) {
+    // User must be logged in and admin.
+    requireLoggedInUser(ctx)
+    hasPermissions(ctx.request.user, ['ADMIN'])
+
     // Does the user's address exist in the database
     const { line1, line2, city, state, zip } = args
     const address = { line1, line2, city, state, zip }
@@ -26,13 +34,15 @@ const Mutation = {
 
     // Prep the user
     const email = args.email.toLowerCase()
-    const password = await bcrypt.hash(args.password, 10)
+    const password = await bcrypt.hash(randomBytes(8).toString('hex'), 10)
 
-    // Confirm password has not been pwned.
-    const isPwned = await isPwnedPassword(args.password)
-    if (isPwned) {
-      throw new Error('Password is pwned')
-    }
+    // Prep the RSVP Token
+    const rsvpToken = randomBytes(3).toString('hex')
+    // TODO: Verify not already assigned
+
+    // Wedding is on 6/20/20 I want to know 3 months in advance so ...
+    const rsvpDeadline = new Date('March 20, 2020')
+    const rsvpTokenExpiry = rsvpDeadline.getTime()
 
     // Create the user
     const user = await ctx.db.mutation
@@ -44,7 +54,8 @@ const Mutation = {
             password,
             permissions: { set: ['USER'] },
             address: addressMutation,
-            emails: { create: [{ email, isActive: true }] },
+            rsvpToken,
+            rsvpTokenExpiry,
           },
         },
         info
@@ -53,13 +64,36 @@ const Mutation = {
         throw new Error(err)
       })
 
-    // Return the user
-    const token = jwt.sign({ userId: user.id }, process.env.APP_SECRET)
-    ctx.response.cookie('token', token, {
-      httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24 * 365, // 1 year
-    })
-    return user
+    return { message: 'Guest Added' }
+  },
+
+  async deleteGuest(parent, args, ctx, info) {
+    // User must be admin
+    requireLoggedInUser(ctx)
+    hasPermissions(ctx.request.user, ['ADMIN'])
+    return ctx.db.mutation.deleteUser({ where: { id: args.id } }, info)
+  },
+
+  async updateUser(parent, args, ctx, info) {
+    // User must be admin or self
+    requireLoggedInUser(ctx)
+    hasPermissions(ctx.request.user, ['ADMIN'], args.id)
+    const updates = { ...args }
+    if (updates.password && isPwnedPassword(updates.password)) {
+      throw new Error(
+        'Your password has been found on the dark web. You cannot use it here, and you should change it anywhere you have used it.'
+      )
+    }
+    delete updates.id
+    return ctx.db.mutation.updateUser(
+      {
+        data: updates,
+        where: {
+          id: args.id,
+        },
+      },
+      info
+    )
   },
 
   async signin(parent, { email, password }, ctx) {
@@ -82,6 +116,51 @@ const Mutation = {
   signout(parent, args, ctx) {
     ctx.response.clearCookie('token')
     return { message: 'Goodbye' }
+  },
+
+  async rsvp(parent, args, ctx) {
+    // If the user is not going, they should not have to provide a password
+    // it will also mean that they cannot change their mind.
+    const isGoing = args.rsvpAnswer === 'true'
+
+    // If they're not coming no matter what they wrote in guest count is zero
+    const guestCount = isGoing ? Number(args.guestCount) : 0
+
+    // args { password, confirmPassword, rsvpToken, rsvpAnswer, guestCount }
+    if (isGoing && args.password !== args.confirmPassword) {
+      throw new Error('Your passwords do not match.')
+    }
+
+    const [user] = await ctx.db.query.users({
+      where: {
+        rsvpToken: args.rsvpToken,
+        rsvpTokenExpiry_gte: Date.now(),
+      },
+    })
+    if (!user) {
+      throw new Error('This rsvp token is either expired or not valid.')
+    }
+
+    const p = isGoing ? args.password : randomBytes(6).toString('hex')
+    const password = await bcrypt.hash(p, 10)
+
+    const updatedUser = await ctx.db.mutation.updateUser({
+      where: { email: user.email },
+      data: {
+        password,
+        isGoing,
+        guestCount,
+        rsvpToken: null,
+        rsvpTokenExpiry: null,
+      },
+    })
+
+    const token = jwt.sign({ userId: updatedUser.id }, config.APP_SECRET)
+    ctx.response.cookie('token', token, {
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 24 * 365, // 1 year
+    })
+    return user
   },
 
   async requestReset(parent, { email }, ctx) {
@@ -130,7 +209,11 @@ const Mutation = {
     if (!user) {
       throw new Error('This token is either expired or not valid.')
     }
-
+    if (isPwnedPassword(args.password)) {
+      throw new Error(
+        'Your password has been found on the dark web. You cannot use it here, and you should change it anywhere you have used it.'
+      )
+    }
     const password = await bcrypt.hash(args.password, 10)
     const updatedUser = await ctx.db.mutation.updateUser({
       where: { email: user.email },
@@ -146,10 +229,9 @@ const Mutation = {
   },
 
   updatePermissions(parent, args, ctx, info) {
+    requireLoggedInUser(ctx)
+    hasPermissions(ctx.request.user, ['ADMIN', 'PERMISSIONUPDATE'])
     const { userId, permissions } = args
-    // requireLoggedInUser(ctx)
-    // const { user } = ctx.request
-    // hasPermissions(user, ['ADMIN', 'PERMISSIONUPDATE'])
     return ctx.db.mutation.updateUser(
       {
         data: { permissions: { set: permissions } },
@@ -159,97 +241,87 @@ const Mutation = {
     )
   },
 
-  createEmail(parent, args, ctx, info) {
-    requireLoggedInUser(ctx)
-    const { user } = ctx.request
-    // TODO: Add validation that email string is an email
-    return ctx.db.mutation.createEmail(
-      {
-        data: {
-          user: {
-            connect: {
-              id: user.id,
-            },
-          },
-          ...args,
-        },
-      },
-      info
-    )
-  },
-
-  async toggleEmail(parent, args, ctx, info) {
-    requireLoggedInUser(ctx)
-    const userId = ctx.request.user.id;
-    const where = { id: args.id }
-    const email = await ctx.db.query.email({ where }, `{ id, isActive, user { id } }`)
-    // TODO: Verify that current User owns the email address
-    const ownsEmail = email.user.id === userId
-    if (!ownsEmail) {
-      throw new Error('You do not have the appropriate permissions to delete this email')
-    }
-    return ctx.db.mutation.updateEmail(
-      { data: { isActive: !email.isActive }, where: { id: email.id } },
-      info
-    )
-  },
-
   async createFundTransaction(parent, args, ctx, info) {
-    // Get current user - make sure they're signed in
-    const { userId } = ctx.request
-    if (!userId) throw new Error('You must be signed in to add funds to your account.')
-    const user = await ctx.db.query
-      .user({ where: { id: userId } }, `{ id name email balance }`)
-      .catch(err => {
-        throw new Error(err)
-      })
+    const { token, amount, gift, name } = args
+    const isLoggedIn = !!ctx.request.userId
+    let email = null
+    if (isLoggedIn) {
+      // eslint-disable-next-line prefer-destructuring
+      email = ctx.request.user.email
+    }
 
-    // Confirm user is paying at least $10
-    const { amount } = args
-    if (amount < 1000) throw new Error('You must fund your account with at least $10.')
+    if (amount < 1000) throw new Error('You must give at least $10.')
 
-    // Create stripe charge
-    const charge = await stripe.charges
-      .create({
-        amount,
-        currency: 'USD',
-        source: args.token,
-        receipt_email: user.email,
-      })
-      .catch(err => {
-        throw new Error(err)
-      })
+    const charge = {
+      amount,
+      currency: 'USD',
+      source: token,
+    }
+    if (isLoggedIn) {
+      charge.receipt_email = email
+    }
+    const stripeCharge = await stripe.charges.create({ ...charge }).catch(err => {
+      throw new Error(err)
+    })
 
-    // Update users's balance
-    await ctx.db.mutation
-      .updateUser({
-        where: { id: userId },
-        data: { balance: user.balance + amount },
-      })
-      .catch(err => {
-        throw new Error(err)
-      })
+    const transactionMutation = {
+      data: {
+        type: 'STRIPE',
+        price: amount,
+        charge: {
+          create: {
+            charge: stripeCharge.id,
+          },
+        },
+        gift: gift.toUpperCase() === 'GYM' ? 'GYM' : 'HONEYMOON',
+      },
+    }
+    if (isLoggedIn) {
+      transactionMutation.data.user = {
+        connect: {
+          id: ctx.request.userId,
+        },
+      }
+      transactionMutation.data.name = ctx.request.user.name
+    } else {
+      transactionMutation.data.name = name
+    }
+    return ctx.db.mutation.createTransaction({ ...transactionMutation }, info)
+  },
 
-    // return transaction entry
-    return ctx.db.mutation.createTransaction(
+  async updateAddress(parent, args, ctx, info) {
+    // User must be admin or self
+    requireLoggedInUser(ctx)
+    hasPermissions(ctx.request.user, ['ADMIN'], args.id)
+    const updates = { ...args }
+    updates.hash = addressesController.getHash(updates)
+    delete updates.id
+    return ctx.db.mutation.updateAddress(
       {
-        data: {
-          type: 'STRIPE',
-          price: amount,
-          charge: {
-            create: {
-              charge: charge.id,
-            },
-          },
-          user: {
-            connect: {
-              id: userId,
-            },
-          },
+        data: updates,
+        where: {
+          id: args.id,
         },
       },
       info
     )
+  },
+
+  async createInvitations(parent, args, ctx, info) {
+    // Only logged in admins can perform
+    requireLoggedInUser(ctx)
+    hasPermissions(ctx.request.user, ['ADMIN'])
+
+    const allPossibleGuests = await ctx.db.query.users(
+      {},
+      '{ id name rsvpToken address { id line1 line2 city state zip }}'
+    )
+    const guests = allPossibleGuests.filter(user => !!user.rsvpToken)
+    try {
+      return guests.map(guest => createPostcard(guest, ctx.db, info))
+    } catch (error) {
+      throw error
+    }
   },
 }
 

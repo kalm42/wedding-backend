@@ -1,36 +1,58 @@
 # import * from './generated/prisma.graphql'
 
 type Mutation {
-  signup(
+  inviteGuest(
     name: String!
     email: String!
-    password: String!
     line1: String!
     line2: String
     city: String!
     state: String!
     zip: String!
-  ): User!
+  ): SuccessMessage
+  deleteGuest(id: ID!): User
+  updateUser(id: ID!, name: String, email: String, isGoing: Boolean, guestCount: Int): User
   signin(email: String!, password: String!): User!
   signout: SuccessMessage
+  rsvp(
+    password: String
+    confirmPassword: String
+    rsvpToken: String!
+    rsvpAnswer: String!
+    guestCount: String!
+  ): User!
   requestReset(email: String!): SuccessMessage
   resetPassword(resetToken: String!, password: String!, confirmPassword: String!): User!
   updatePermissions(permissions: [Permission]!, userId: ID!): User
-  createEmail(email: String!): Email!
-  toggleEmail(id: ID!): Email!
-  createFundTransaction(token: String!, amount: Int!): Transaction!
+  createFundTransaction(token: String!, amount: Int!, gift: String!, name: String): Transaction!
+  updateAddress(
+    id: ID!
+    line1: String
+    line2: String
+    city: String
+    state: String
+    zip: String
+  ): Address!
+  createInvitations: [Invitation]!
 }
 
 type Query {
   addresses: [Address]!
+  address(where: AddressWhereUniqueInput!): Address
   me: User
   users: [User]!
-  emails: [Email]!
-  transactions: [Transaction]!
+  user(where: UserWhereUniqueInput!): User
+  transactions(where: TransactionWhereInput): [Transaction]!
+  giftStatus: GiftStatus
 }
 
 type SuccessMessage {
   message: String
+}
+
+type GiftStatus {
+  gym: Int
+  honeymoon: Int
 }
 
 type User {
@@ -38,6 +60,6 @@ type User {
   name: String!
   email: String!
   address: Address!
+  guestCount: Int!
   permissions: [Permission!]!
-  balance: Int!
 }

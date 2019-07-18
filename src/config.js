@@ -9,5 +9,6 @@ module.exports = {
   MAIL_PORT: process.env.MAIL_PORT,
   MAIL_USER: process.env.MAIL_USER,
   MAIL_PASS: process.env.MAIL_PASS,
-  permissions: ['ADMIN', 'USER', 'ADVOCATE', 'PERMISSIONUPDATE'],
+  LOB_SECRET_KEY: process.env.LOB_SECRET_KEY,
+  permissions: ['ADMIN', 'USER'],
 }
