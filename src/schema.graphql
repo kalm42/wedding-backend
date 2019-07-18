@@ -33,7 +33,7 @@ type Mutation {
     state: String
     zip: String
   ): Address!
-  sendInvitations: SuccessMessage
+  createInvitations: [Invitation]!
 }
 
 type Query {

@@ -7,7 +7,7 @@ const { randomBytes } = require('crypto')
 const { promisify } = require('util')
 const config = require('../config')
 // eslint-disable-next-line import/order
-const lob = require('../controllers/lob')
+const createPostcard = require('../controllers/lob')
 const addressesController = require('../controllers/addresses')
 const { transport, makeAResponsiveEmail } = require('../mail')
 const { isPwnedPassword, requireLoggedInUser, hasPermissions } = require('../utils')
@@ -307,7 +307,7 @@ const Mutation = {
     )
   },
 
-  async sendInvitations(parent, args, ctx) {
+  async createInvitations(parent, args, ctx, info) {
     // Only logged in admins can perform
     requireLoggedInUser(ctx)
     hasPermissions(ctx.request.user, ['ADMIN'])
@@ -317,19 +317,10 @@ const Mutation = {
       '{ id name rsvpToken address { id line1 line2 city state zip }}'
     )
     const guests = allPossibleGuests.filter(user => !!user.rsvpToken)
-    const errors = []
-    guests.map(async guest => {
-      try {
-        await lob(guest, ctx.db)
-      } catch (error) {
-        throw new Error(`There was an error making a postcard for ${guest.name}`)
-      }
-      return guest
-    })
-    if (errors.length > 0) {
-      throw new Error('1 or more invitations failed to be created.')
-    } else {
-      return { message: 'Success' }
+    try {
+      return guests.map(guest => createPostcard(guest, ctx.db, info))
+    } catch (error) {
+      throw error
     }
   },
 }
