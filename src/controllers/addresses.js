@@ -14,7 +14,6 @@ module.exports = {
   /**
    * Takes in the address object from the Google Civic API and returns the
    * mutation object for the GraphQL prisma db.
-   * @param {object} address
    *
    * * CREATE ADDRESSES
    * upsertAddress({

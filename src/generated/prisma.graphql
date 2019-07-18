@@ -1,5 +1,5 @@
 # source: https://us1.prisma.sh/kyle-melton/wedding-backend/dev
-# timestamp: Fri Jun 07 2019 12:14:45 GMT-0500 (CDT)
+# timestamp: Wed Jul 17 2019 17:08:00 GMT-0600 (Mountain Daylight Time)
 
 type Address implements Node {
   id: ID!
@@ -779,6 +779,11 @@ input FundWhereUniqueInput {
   id: ID
 }
 
+enum Gift {
+  GYM
+  HONEYMOON
+}
+
 type Invitation implements Node {
   id: ID!
   to: Address!
@@ -786,7 +791,6 @@ type Invitation implements Node {
   thumbnails: [String!]!
   expected_delivery_date: DateTime!
   send_date: DateTime
-  pages: Int!
   user: User!
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -807,7 +811,6 @@ input InvitationCreateInput {
   foreign_id: String!
   expected_delivery_date: DateTime!
   send_date: DateTime
-  pages: Int!
   thumbnails: InvitationCreatethumbnailsInput
   to: AddressCreateOneInput!
   user: UserCreateOneWithoutInvitationsInput!
@@ -827,7 +830,6 @@ input InvitationCreateWithoutUserInput {
   foreign_id: String!
   expected_delivery_date: DateTime!
   send_date: DateTime
-  pages: Int!
   thumbnails: InvitationCreatethumbnailsInput
   to: AddressCreateOneInput!
 }
@@ -850,8 +852,6 @@ enum InvitationOrderByInput {
   expected_delivery_date_DESC
   send_date_ASC
   send_date_DESC
-  pages_ASC
-  pages_DESC
   createdAt_ASC
   createdAt_DESC
   updatedAt_ASC
@@ -864,7 +864,6 @@ type InvitationPreviousValues {
   thumbnails: [String!]!
   expected_delivery_date: DateTime!
   send_date: DateTime
-  pages: Int!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -1002,28 +1001,6 @@ input InvitationScalarWhereInput {
 
   """All values greater than or equal the given value."""
   send_date_gte: DateTime
-  pages: Int
-
-  """All values that are not equal to given value."""
-  pages_not: Int
-
-  """All values that are contained in given list."""
-  pages_in: [Int!]
-
-  """All values that are not contained in given list."""
-  pages_not_in: [Int!]
-
-  """All values less than the given value."""
-  pages_lt: Int
-
-  """All values less than or equal the given value."""
-  pages_lte: Int
-
-  """All values greater than the given value."""
-  pages_gt: Int
-
-  """All values greater than or equal the given value."""
-  pages_gte: Int
   createdAt: DateTime
 
   """All values that are not equal to given value."""
@@ -1111,7 +1088,6 @@ input InvitationUpdateInput {
   foreign_id: String
   expected_delivery_date: DateTime
   send_date: DateTime
-  pages: Int
   thumbnails: InvitationUpdatethumbnailsInput
   to: AddressUpdateOneRequiredInput
   user: UserUpdateOneRequiredWithoutInvitationsInput
@@ -1121,7 +1097,6 @@ input InvitationUpdateManyDataInput {
   foreign_id: String
   expected_delivery_date: DateTime
   send_date: DateTime
-  pages: Int
   thumbnails: InvitationUpdatethumbnailsInput
 }
 
@@ -1129,7 +1104,6 @@ input InvitationUpdateManyMutationInput {
   foreign_id: String
   expected_delivery_date: DateTime
   send_date: DateTime
-  pages: Int
   thumbnails: InvitationUpdatethumbnailsInput
 }
 
@@ -1158,7 +1132,6 @@ input InvitationUpdateWithoutUserDataInput {
   foreign_id: String
   expected_delivery_date: DateTime
   send_date: DateTime
-  pages: Int
   thumbnails: InvitationUpdatethumbnailsInput
   to: AddressUpdateOneRequiredInput
 }
@@ -1307,28 +1280,6 @@ input InvitationWhereInput {
 
   """All values greater than or equal the given value."""
   send_date_gte: DateTime
-  pages: Int
-
-  """All values that are not equal to given value."""
-  pages_not: Int
-
-  """All values that are contained in given list."""
-  pages_in: [Int!]
-
-  """All values that are not contained in given list."""
-  pages_not_in: [Int!]
-
-  """All values less than the given value."""
-  pages_lt: Int
-
-  """All values less than or equal the given value."""
-  pages_lte: Int
-
-  """All values greater than the given value."""
-  pages_gt: Int
-
-  """All values greater than or equal the given value."""
-  pages_gte: Int
   createdAt: DateTime
 
   """All values that are not equal to given value."""
@@ -1489,7 +1440,9 @@ type Transaction implements Node {
   type: TransactionType!
   charge: Fund
   price: Int!
-  user: User!
+  gift: Gift!
+  name: String!
+  user: User
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -1508,8 +1461,10 @@ input TransactionCreateInput {
   id: ID
   type: TransactionType!
   price: Int!
+  gift: Gift!
+  name: String!
   charge: FundCreateOneInput
-  user: UserCreateOneWithoutTransactionsInput!
+  user: UserCreateOneWithoutTransactionsInput
 }
 
 input TransactionCreateManyWithoutUserInput {
@@ -1521,6 +1476,8 @@ input TransactionCreateWithoutUserInput {
   id: ID
   type: TransactionType!
   price: Int!
+  gift: Gift!
+  name: String!
   charge: FundCreateOneInput
 }
 
@@ -1540,6 +1497,10 @@ enum TransactionOrderByInput {
   type_DESC
   price_ASC
   price_DESC
+  gift_ASC
+  gift_DESC
+  name_ASC
+  name_DESC
   createdAt_ASC
   createdAt_DESC
   updatedAt_ASC
@@ -1550,6 +1511,8 @@ type TransactionPreviousValues {
   id: ID!
   type: TransactionType!
   price: Int!
+  gift: Gift!
+  name: String!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -1635,6 +1598,56 @@ input TransactionScalarWhereInput {
 
   """All values greater than or equal the given value."""
   price_gte: Int
+  gift: Gift
+
+  """All values that are not equal to given value."""
+  gift_not: Gift
+
+  """All values that are contained in given list."""
+  gift_in: [Gift!]
+
+  """All values that are not contained in given list."""
+  gift_not_in: [Gift!]
+  name: String
+
+  """All values that are not equal to given value."""
+  name_not: String
+
+  """All values that are contained in given list."""
+  name_in: [String!]
+
+  """All values that are not contained in given list."""
+  name_not_in: [String!]
+
+  """All values less than the given value."""
+  name_lt: String
+
+  """All values less than or equal the given value."""
+  name_lte: String
+
+  """All values greater than the given value."""
+  name_gt: String
+
+  """All values greater than or equal the given value."""
+  name_gte: String
+
+  """All values containing the given string."""
+  name_contains: String
+
+  """All values not containing the given string."""
+  name_not_contains: String
+
+  """All values starting with the given string."""
+  name_starts_with: String
+
+  """All values not starting with the given string."""
+  name_not_starts_with: String
+
+  """All values ending with the given string."""
+  name_ends_with: String
+
+  """All values not ending with the given string."""
+  name_not_ends_with: String
   createdAt: DateTime
 
   """All values that are not equal to given value."""
@@ -1726,18 +1739,24 @@ enum TransactionType {
 input TransactionUpdateInput {
   type: TransactionType
   price: Int
+  gift: Gift
+  name: String
   charge: FundUpdateOneInput
-  user: UserUpdateOneRequiredWithoutTransactionsInput
+  user: UserUpdateOneWithoutTransactionsInput
 }
 
 input TransactionUpdateManyDataInput {
   type: TransactionType
   price: Int
+  gift: Gift
+  name: String
 }
 
 input TransactionUpdateManyMutationInput {
   type: TransactionType
   price: Int
+  gift: Gift
+  name: String
 }
 
 input TransactionUpdateManyWithoutUserInput {
@@ -1760,6 +1779,8 @@ input TransactionUpdateManyWithWhereNestedInput {
 input TransactionUpdateWithoutUserDataInput {
   type: TransactionType
   price: Int
+  gift: Gift
+  name: String
   charge: FundUpdateOneInput
 }
 
@@ -1855,6 +1876,56 @@ input TransactionWhereInput {
 
   """All values greater than or equal the given value."""
   price_gte: Int
+  gift: Gift
+
+  """All values that are not equal to given value."""
+  gift_not: Gift
+
+  """All values that are contained in given list."""
+  gift_in: [Gift!]
+
+  """All values that are not contained in given list."""
+  gift_not_in: [Gift!]
+  name: String
+
+  """All values that are not equal to given value."""
+  name_not: String
+
+  """All values that are contained in given list."""
+  name_in: [String!]
+
+  """All values that are not contained in given list."""
+  name_not_in: [String!]
+
+  """All values less than the given value."""
+  name_lt: String
+
+  """All values less than or equal the given value."""
+  name_lte: String
+
+  """All values greater than the given value."""
+  name_gt: String
+
+  """All values greater than or equal the given value."""
+  name_gte: String
+
+  """All values containing the given string."""
+  name_contains: String
+
+  """All values not containing the given string."""
+  name_not_contains: String
+
+  """All values starting with the given string."""
+  name_starts_with: String
+
+  """All values not starting with the given string."""
+  name_not_starts_with: String
+
+  """All values ending with the given string."""
+  name_ends_with: String
+
+  """All values not ending with the given string."""
+  name_not_ends_with: String
   createdAt: DateTime
 
   """All values that are not equal to given value."""
@@ -2124,9 +2195,11 @@ input UserUpdateOneRequiredWithoutInvitationsInput {
   upsert: UserUpsertWithoutInvitationsInput
 }
 
-input UserUpdateOneRequiredWithoutTransactionsInput {
+input UserUpdateOneWithoutTransactionsInput {
   create: UserCreateWithoutTransactionsInput
   connect: UserWhereUniqueInput
+  disconnect: Boolean
+  delete: Boolean
   update: UserUpdateWithoutTransactionsDataInput
   upsert: UserUpsertWithoutTransactionsInput
 }

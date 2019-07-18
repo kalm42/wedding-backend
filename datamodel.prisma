@@ -8,6 +8,11 @@ enum TransactionType {
   MAIL
 }
 
+enum Gift {
+  GYM
+  HONEYMOON
+}
+
 type User {
   id: ID! @id
   name: String!
@@ -44,7 +49,9 @@ type Transaction {
   type: TransactionType!
   charge: Fund @relation(link: TABLE)
   price: Int!
-  user: User! @relation(link: TABLE)
+  gift: Gift!
+  name: String!
+  user: User @relation(link: TABLE)
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
 }
@@ -58,12 +65,11 @@ type Fund {
 
 type Invitation {
   id: ID! @id
-  to: Address!
+  to: Address! @relation(link: TABLE)
   foreign_id: String!
   thumbnails: [String]! @scalarList(strategy: RELATION)
   expected_delivery_date: DateTime!
   send_date: DateTime
-  pages: Int!
   user: User! @relation(link: TABLE)
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt

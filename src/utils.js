@@ -8,10 +8,14 @@ function requireLoggedInUser(ctx) {
   return true
 }
 
-function hasPermissions(user, permissionsNeeded) {
+function hasPermissions(user, permissionsNeeded, self = null) {
   const matchedPermissions = user.permissions.filter(permissionTheyHave =>
     permissionsNeeded.includes(permissionTheyHave)
   )
+
+  if (self && self === user.id) {
+    matchedPermissions.push(true)
+  }
 
   if (!matchedPermissions.length) {
     throw new Error(`You do not have sufficient permissions
