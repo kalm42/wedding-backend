@@ -306,6 +306,32 @@ const Mutation = {
       info
     )
   },
+
+  async sendInvitations(parent, args, ctx) {
+    // Only logged in admins can perform
+    requireLoggedInUser(ctx)
+    hasPermissions(ctx.request.user, ['ADMIN'])
+
+    const allPossibleGuests = await ctx.db.query.users(
+      {},
+      '{ id name rsvpToken address { id line1 line2 city state zip }}'
+    )
+    const guests = allPossibleGuests.filter(user => !!user.rsvpToken)
+    const errors = []
+    guests.map(async guest => {
+      try {
+        await lob(guest, ctx.db)
+      } catch (error) {
+        throw new Error(`There was an error making a postcard for ${guest.name}`)
+      }
+      return guest
+    })
+    if (errors.length > 0) {
+      throw new Error('1 or more invitations failed to be created.')
+    } else {
+      return { message: 'Success' }
+    }
+  },
 }
 
 module.exports = Mutation
