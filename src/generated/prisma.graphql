@@ -1,5 +1,5 @@
 # source: https://us1.prisma.sh/kyle-melton/wedding-backend/dev
-# timestamp: Tue Jul 16 2019 14:14:39 GMT-0600 (Mountain Daylight Time)
+# timestamp: Wed Jul 17 2019 17:08:00 GMT-0600 (Mountain Daylight Time)
 
 type Address implements Node {
   id: ID!
@@ -791,7 +791,6 @@ type Invitation implements Node {
   thumbnails: [String!]!
   expected_delivery_date: DateTime!
   send_date: DateTime
-  pages: Int!
   user: User!
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -812,7 +811,6 @@ input InvitationCreateInput {
   foreign_id: String!
   expected_delivery_date: DateTime!
   send_date: DateTime
-  pages: Int!
   thumbnails: InvitationCreatethumbnailsInput
   to: AddressCreateOneInput!
   user: UserCreateOneWithoutInvitationsInput!
@@ -832,7 +830,6 @@ input InvitationCreateWithoutUserInput {
   foreign_id: String!
   expected_delivery_date: DateTime!
   send_date: DateTime
-  pages: Int!
   thumbnails: InvitationCreatethumbnailsInput
   to: AddressCreateOneInput!
 }
@@ -855,8 +852,6 @@ enum InvitationOrderByInput {
   expected_delivery_date_DESC
   send_date_ASC
   send_date_DESC
-  pages_ASC
-  pages_DESC
   createdAt_ASC
   createdAt_DESC
   updatedAt_ASC
@@ -869,7 +864,6 @@ type InvitationPreviousValues {
   thumbnails: [String!]!
   expected_delivery_date: DateTime!
   send_date: DateTime
-  pages: Int!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -1007,28 +1001,6 @@ input InvitationScalarWhereInput {
 
   """All values greater than or equal the given value."""
   send_date_gte: DateTime
-  pages: Int
-
-  """All values that are not equal to given value."""
-  pages_not: Int
-
-  """All values that are contained in given list."""
-  pages_in: [Int!]
-
-  """All values that are not contained in given list."""
-  pages_not_in: [Int!]
-
-  """All values less than the given value."""
-  pages_lt: Int
-
-  """All values less than or equal the given value."""
-  pages_lte: Int
-
-  """All values greater than the given value."""
-  pages_gt: Int
-
-  """All values greater than or equal the given value."""
-  pages_gte: Int
   createdAt: DateTime
 
   """All values that are not equal to given value."""
@@ -1116,7 +1088,6 @@ input InvitationUpdateInput {
   foreign_id: String
   expected_delivery_date: DateTime
   send_date: DateTime
-  pages: Int
   thumbnails: InvitationUpdatethumbnailsInput
   to: AddressUpdateOneRequiredInput
   user: UserUpdateOneRequiredWithoutInvitationsInput
@@ -1126,7 +1097,6 @@ input InvitationUpdateManyDataInput {
   foreign_id: String
   expected_delivery_date: DateTime
   send_date: DateTime
-  pages: Int
   thumbnails: InvitationUpdatethumbnailsInput
 }
 
@@ -1134,7 +1104,6 @@ input InvitationUpdateManyMutationInput {
   foreign_id: String
   expected_delivery_date: DateTime
   send_date: DateTime
-  pages: Int
   thumbnails: InvitationUpdatethumbnailsInput
 }
 
@@ -1163,7 +1132,6 @@ input InvitationUpdateWithoutUserDataInput {
   foreign_id: String
   expected_delivery_date: DateTime
   send_date: DateTime
-  pages: Int
   thumbnails: InvitationUpdatethumbnailsInput
   to: AddressUpdateOneRequiredInput
 }
@@ -1312,28 +1280,6 @@ input InvitationWhereInput {
 
   """All values greater than or equal the given value."""
   send_date_gte: DateTime
-  pages: Int
-
-  """All values that are not equal to given value."""
-  pages_not: Int
-
-  """All values that are contained in given list."""
-  pages_in: [Int!]
-
-  """All values that are not contained in given list."""
-  pages_not_in: [Int!]
-
-  """All values less than the given value."""
-  pages_lt: Int
-
-  """All values less than or equal the given value."""
-  pages_lte: Int
-
-  """All values greater than the given value."""
-  pages_gt: Int
-
-  """All values greater than or equal the given value."""
-  pages_gte: Int
   createdAt: DateTime
 
   """All values that are not equal to given value."""
