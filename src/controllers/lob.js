@@ -19,7 +19,7 @@ function lobPromises(param) {
   })
 }
 
-function createPostcard(guest, db) {
+function createPostcard(guest, db, info) {
   return new Promise((resolve, reject) => {
     lobPromises({
       description: `Wedding Invitation for ${guest.name}`,
@@ -38,18 +38,21 @@ function createPostcard(guest, db) {
     })
       .then(card => {
         db.mutation
-          .createInvitation({
-            data: {
-              foreign_id: card.id,
-              expected_delivery_date: card.expected_delivery_date,
-              send_date: card.send_date,
-              thumbnails: {
-                set: [card.thumbnails[0].medium, card.thumbnails[1].medium],
+          .createInvitation(
+            {
+              data: {
+                foreign_id: card.id,
+                expected_delivery_date: card.expected_delivery_date,
+                send_date: card.send_date,
+                thumbnails: {
+                  set: [card.thumbnails[0].medium, card.thumbnails[1].medium],
+                },
+                to: { connect: { id: guest.address.id } },
+                user: { connect: { id: guest.id } },
               },
-              to: { connect: { id: guest.address.id } },
-              user: { connect: { id: guest.id } },
             },
-          })
+            info
+          )
           .then(invite => resolve(invite))
           .catch(err => reject(err))
       })
