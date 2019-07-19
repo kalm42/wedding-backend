@@ -118,14 +118,8 @@ const Mutation = {
   },
 
   async rsvp(parent, args, ctx) {
-    // If the user is not going, they should not have to provide a password
-    // it will also mean that they cannot change their mind.
     const isGoing = args.rsvpAnswer === 'true'
-
-    // If they're not coming no matter what they wrote in guest count is zero
     const guestCount = isGoing ? Number(args.guestCount) : 0
-
-    // args { password, confirmPassword, rsvpToken, rsvpAnswer, guestCount }
     if (isGoing && args.password !== args.confirmPassword) {
       throw new Error('Your passwords do not match.')
     }
