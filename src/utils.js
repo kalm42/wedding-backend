@@ -37,28 +37,25 @@ async function isPwnedPassword(password) {
   const hashSuffix = hash.substr(5).toUpperCase()
   const url = `https://api.pwnedpasswords.com/range/${hashPrefix}`
 
-  const result = await fetch(url)
-    .then(res => {
-      if (res.status !== 200 && res.status !== 404) {
-        throw new Error(`Failed to fetch password comparisons. Status Code ${res.status}`)
-      }
-      if (res.status === 404) return false
-
-      return res.text()
-    })
-    .catch(err => {
-      throw new Error(err)
-    })
-
-  if (result) {
-    const results = result
+  try {
+    const res = await fetch(url)
+    // Was fetch successful
+    if (res.status !== 200 && res.status !== 404) {
+      throw new Error(`Failed to fetch password comparisons. Status Code ${res.status}`)
+    }
+    if (res.status === 404) {
+      return false
+    }
+    let matchingHash = await res.text()
+    matchingHash = matchingHash
       .split('\r\n')
       .map(line => line.split(':'))
       .filter(line => line[0] === hashSuffix)
       .shift()
-    return !!results
+    return !!matchingHash
+  } catch (error) {
+    throw error
   }
-  return false
 }
 
 exports.requireLoggedInUser = requireLoggedInUser
