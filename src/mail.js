@@ -28,29 +28,26 @@ const makeAResponsiveEmail = text =>
         <mj-body>
 
           <!-- Company Header -->
-          <mj-section background-color="#f0f0f0">
+          <mj-section background-color="#5ebfb5">
             <mj-column>
               <mj-text  font-style="italic"
                         font-size="20px"
-                        color="#626262">
-                Easy Postal Service
+                        color="#3f707d">
+                Kyle &amp; Shelly&rqsuo;s Wedding
               </mj-text>
             </mj-column>
           </mj-section>
 
           <!-- Image Header -->
           <mj-section 
-            background-url="http://1.bp.blogspot.com/-TPrfhxbYpDY/Uh3Refzk02I/AAAAAAAALw8/5sUJ0UUGYuw/s1600/New+York+in+The+1960's+-+70's+(2).jpg"
+            background-url="https://kalm-wedding.netlify.com/static/34fefe41defad099b2f261a49bd12952/5f2bd/hero.png"
             background-size="cover"
             background-repeat="no-repeat"
           >
             <mj-column width="600px">
               <mj-text align="center" color="#fff" font-size="40px" font-family="Helvetica Neue">
-                Slogan here
+                Password Reset
               </mj-text>
-              <mj-button background-color="#F63A4D" href="#">
-                Promotion
-              </mj-button>
             </mj-column>
           </mj-section>
 
@@ -58,68 +55,13 @@ const makeAResponsiveEmail = text =>
           <mj-section background-color="#fafafa">
             <mj-column width="400px">
               <mj-text font-style="italic" font-size="20px" font-family="Helvetica Neue" color="#626262">
-                My Awesome Text
+                Reset Your Password
               </mj-text>
               <mj-text color="#525252">
                 ${text}
               </mj-text>
-              <mj-button background-color="#F45E43" href="#">
-                Learn more
-              </mj-button>
             </mj-column>
           </mj-section>
-
-          <!-- 2 columns section -->
-          <!-- Side image -->
-          <mj-section background-color="white">
-            <!-- Left image -->
-            <mj-column>
-              <mj-image 
-                width="200px" 
-                src="https://designspell.files.wordpress.com/2012/01/sciolino-paris-bw.jpg" 
-              />
-            </mj-column>
-
-            <!-- right paragraph -->
-            <mj-column>
-              <mj-text 
-                font-style="italic" 
-                font-size="20px" 
-                font-family="Helvetica Neue" 
-                color="#626262"
-              >
-                Find amazing places
-              </mj-text>
-              <mj-text color="#525252">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin rutrum enim eget magna efficitur, eu semper augue semper. Aliquam erat volutpat. Cras id dui lectus. Vestibulum sed finibus lectus.
-              </mj-text>
-            </mj-column>
-          </mj-section>
-
-          <!-- Icons -->
-          <!-- Icons -->
-          <mj-section background-color="#fbfbfb">
-            <mj-column>
-              <mj-image width="100px" src="http://191n.mj.am/img/191n/3s/x0l.png" />
-            </mj-column>
-            <mj-column>
-              <mj-image width="100px" src="http://191n.mj.am/img/191n/3s/x01.png" />
-            </mj-column>
-            <mj-column>
-              <mj-image width="100px" src="http://191n.mj.am/img/191n/3s/x0s.png" />
-            </mj-column>
-          </mj-section>
-
-          <!-- Social icons -->
-          <mj-section background-color="#e7e7e7">
-            <mj-column>
-              <mj-social>
-                <mj-social-element name="facebook" />
-              </mj-social>
-            </mj-column>
-          </mj-section>
-
-
         </mj-body>
       </mjml>
     `,
