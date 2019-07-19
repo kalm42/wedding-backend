@@ -1,5 +1,4 @@
 /* eslint-disable func-names */
-/* eslint-disable no-console */
 /* eslint no-unused-vars: warn */
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
@@ -119,14 +118,8 @@ const Mutation = {
   },
 
   async rsvp(parent, args, ctx) {
-    // If the user is not going, they should not have to provide a password
-    // it will also mean that they cannot change their mind.
     const isGoing = args.rsvpAnswer === 'true'
-
-    // If they're not coming no matter what they wrote in guest count is zero
     const guestCount = isGoing ? Number(args.guestCount) : 0
-
-    // args { password, confirmPassword, rsvpToken, rsvpAnswer, guestCount }
     if (isGoing && args.password !== args.confirmPassword) {
       throw new Error('Your passwords do not match.')
     }
@@ -199,7 +192,6 @@ const Mutation = {
     if (args.password !== args.confirmPassword) {
       throw new Error('Your passwords do not match.')
     }
-
     const [user] = await ctx.db.query.users({
       where: {
         resetToken: args.resetToken,
@@ -209,7 +201,7 @@ const Mutation = {
     if (!user) {
       throw new Error('This token is either expired or not valid.')
     }
-    if (isPwnedPassword(args.password)) {
+    if (await isPwnedPassword(args.password)) {
       throw new Error(
         'Your password has been found on the dark web. You cannot use it here, and you should change it anywhere you have used it.'
       )

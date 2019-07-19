@@ -1,6 +1,7 @@
-endpoint: ${env:PRISMA_ENDPOINT}
+# endpoint: ${env:PRISMA_ENDPOINT}
+endpoint: https://wedding-production-2474269f65.herokuapp.com/wedding-backend/prod
 datamodel: datamodel.prisma
-# secret: ${env:PRISMA_SECRET}
+secret: ${env:PRISMA_SECRET}
 
 hooks:
   post-deploy:

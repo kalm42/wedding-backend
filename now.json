@@ -1,18 +1,18 @@
 {
-  "name": "eps-backend",
+  "name": "wedding-backend",
   "version": 1,
   "env": {
-    "FRONTEND_URL": "@eps-frontend-url",
-    "PRISMA_ENDPOINT": "@eps-prisma-endpoint",
-    "PRISMA_SECRET": "@eps-prisma-secret",
-    "PRISMA_MANAGEMENT_API_SECRET": "@eps-prisma-management-api-secret",
-    "APP_SECRET": "@eps-app-secret",
-    "STRIPE_SECRET": "@eps-stripe-secret",
-    "PORT": "@port",
-    "MAIL_HOST": "@eps-mail-host",
-    "MAIL_PORT": "@eps-mail-port",
-    "MAIL_USER": "@eps-mail-user",
-    "MAIL_PASS": "@eps-mail-pass"
+    "FRONTEND_URL": "@wed-frontend-url",
+    "PRISMA_ENDPOINT": "@wed-prisma-endpoint",
+    "PRISMA_SECRET": "@wed-prisma-secret",
+    "APP_SECRET": "@wed-app-secret",
+    "STRIPE_SECRET": "@wed-stripe-secret",
+    "PORT": "@wed-port",
+    "MAIL_HOST": "@wed-mail-host",
+    "MAIL_PORT": "@wed-mail-port",
+    "MAIL_USER": "@wed-mail-user",
+    "MAIL_PASS": "@wed-mail-pass",
+    "LOB_SECRET_KEY": "@wed-lob-secret-key"
   },
-  "alias": "eps-backend.now.sh"
+  "alias": "wedding-backend.now.sh"
 }
