@@ -315,6 +315,23 @@ const Mutation = {
       throw error
     }
   },
+  createInvitation(parent, args, ctx, info) {
+    // Only logged in admins can perform
+    requireLoggedInUser(ctx)
+    hasPermissions(ctx.request.user, ['ADMIN'])
+
+    return ctx.db.query
+      .user(
+        { where: { id: args.userId } },
+        '{ id name rsvpToken address { id line1 line2 city state zip }}'
+      )
+      .then(guest => {
+        if (guest.rsvpToken === null) {
+          throw new Error('User has no rsvp token.')
+        }
+        return createPostcard(guest, ctx.db, info)
+      })
+  },
 }
 
 module.exports = Mutation

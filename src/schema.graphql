@@ -34,6 +34,7 @@ type Mutation {
     zip: String
   ): Address!
   createInvitations: [Invitation]!
+  createInvitation(userId: ID!): Invitation
 }
 
 type Query {
@@ -44,6 +45,11 @@ type Query {
   user(where: UserWhereUniqueInput!): User
   transactions(where: TransactionWhereInput): [Transaction]!
   giftStatus: GiftStatus
+  noRSVP: [User]!
+  RSVP: [User]!
+  unconfirmedGuestCount: Int!
+  confirmedGuestCount: Int!
+  noInvite: [User]!
 }
 
 type SuccessMessage {

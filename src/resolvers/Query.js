@@ -61,6 +61,46 @@ const Query = {
     }
     return { gym, honeymoon }
   },
+  noRSVP(parent, args, ctx, info) {
+    requireLoggedInUser(ctx)
+    hasPermissions(ctx.request.user, ['ADMIN'])
+    return ctx.db.query.users({ where: { rsvpToken_contains: '' }, orderBy: 'name_ASC' }, info)
+  },
+  RSVP(parent, args, ctx, info) {
+    requireLoggedInUser(ctx)
+    hasPermissions(ctx.request.user, ['ADMIN'])
+    return ctx.db.query.users({ where: { rsvpToken: null }, orderBy: 'name_ASC' }, info)
+  },
+  unconfirmedGuestCount(parent, args, ctx, info) {
+    requireLoggedInUser(ctx)
+    hasPermissions(ctx.request.user, ['ADMIN'])
+    return ctx.db.query
+      .users({ where: { rsvpToken_contains: '' }, orderBy: 'name_ASC' }, '{ id guestCount} ')
+      .then(data =>
+        data
+          .map(guest => guest.guestCount)
+          .reduce((accumulator, guestCount) => accumulator + guestCount)
+      )
+  },
+  confirmedGuestCount(parent, args, ctx, info) {
+    requireLoggedInUser(ctx)
+    hasPermissions(ctx.request.user, ['ADMIN'])
+    return ctx.db.query
+      .users({ where: { rsvpToken: null }, orderBy: 'name_ASC' }, '{ id guestCount} ')
+      .then(data =>
+        data
+          .map(guest => guest.guestCount)
+          .reduce((accumulator, guestCount) => accumulator + guestCount)
+      )
+  },
+  noInvite(parent, args, ctx, info) {
+    requireLoggedInUser(ctx)
+    hasPermissions(ctx.request.user, ['ADMIN'])
+    return ctx.db.query.users(
+      { where: { invitations_every: { id: '' } }, orderBy: 'name_ASC' },
+      info
+    )
+  },
 }
 
 module.exports = Query
