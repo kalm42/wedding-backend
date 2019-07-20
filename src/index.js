@@ -20,16 +20,16 @@ server.express.use((req, res, next) => {
 
 server.express.use(async (req, res, next) => {
   if (!req.userId) return next()
-  const user = await db.query
-    .user({ where: { id: req.userId } }, '{id, email, name, permissions}')
-    .catch(err => {
-      throw new Error(err)
-    })
-  if (!user) {
-    throw new Error('Current user does not exist')
+  try {
+    const user = await db.query.user(
+      { where: { id: req.userId } },
+      '{id, email, name, permissions}'
+    )
+    req.user = user
+    next()
+  } catch (error) {
+    throw error
   }
-  req.user = user
-  next()
 })
 
 server.start(
