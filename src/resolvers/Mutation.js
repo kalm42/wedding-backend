@@ -268,11 +268,11 @@ const Mutation = {
 
       // User?
       if (isLoggedIn) {
-        transactionMutation.user = { connect: { id: ctx.request.userId } }
+        transactionMutation.data.user = { connect: { id: ctx.request.userId } }
       } else {
         // Name?
-        if (name !== '') {
-          transactionMutation.name = name
+        if (name && name.length > 1) {
+          transactionMutation.data.name = name
         }
         // Address?
         const addressHash = addressesController.getHash({ line1, line2, city, state, zip })
@@ -286,10 +286,9 @@ const Mutation = {
             zip,
           })
           const address = await ctx.db.mutation.upsertAddress(addressMutation, '{ id }')
-          transactionMutation.address = { connect: { id: address.id } }
+          transactionMutation.data.address = { connect: { id: address.id } }
         }
       }
-
       // Create the transaction now that all possibilities have been handled
       return ctx.db.mutation.createTransaction({ ...transactionMutation }, info)
     } catch (error) {
