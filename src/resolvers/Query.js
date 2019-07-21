@@ -101,6 +101,17 @@ const Query = {
       info
     )
   },
+  allUsersTransactions(parent, args, ctx, info) {
+    requireLoggedInUser(ctx)
+    hasPermissions(ctx.request.user, ['ADMIN'])
+    if (args.gift.length > 0) {
+      return ctx.db.query.transactions(
+        { where: { gift: args.gift }, orderBy: 'createdAt_DESC' },
+        info
+      )
+    }
+    return ctx.db.query.transactions({ orderBy: 'createdAt_DESC' }, info)
+  },
 }
 
 module.exports = Query
