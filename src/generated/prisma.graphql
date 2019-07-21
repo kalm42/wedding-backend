@@ -1,5 +1,5 @@
 # source: https://us1.prisma.sh/kyle-melton/wedding-backend/dev
-# timestamp: Wed Jul 17 2019 17:08:00 GMT-0600 (Mountain Daylight Time)
+# timestamp: Sat Jul 20 2019 17:34:09 GMT-0600 (Mountain Daylight Time)
 
 type Address implements Node {
   id: ID!
@@ -142,6 +142,15 @@ input AddressUpdateManyMutationInput {
   city: String
   state: String
   zip: String
+}
+
+input AddressUpdateOneInput {
+  create: AddressCreateInput
+  connect: AddressWhereUniqueInput
+  disconnect: Boolean
+  delete: Boolean
+  update: AddressUpdateDataInput
+  upsert: AddressUpsertNestedInput
 }
 
 input AddressUpdateOneRequiredInput {
@@ -626,11 +635,9 @@ input FundUpdateManyMutationInput {
   charge: String
 }
 
-input FundUpdateOneInput {
+input FundUpdateOneRequiredInput {
   create: FundCreateInput
   connect: FundWhereUniqueInput
-  disconnect: Boolean
-  delete: Boolean
   update: FundUpdateDataInput
   upsert: FundUpsertNestedInput
 }
@@ -1438,10 +1445,11 @@ type Subscription {
 type Transaction implements Node {
   id: ID!
   type: TransactionType!
-  charge: Fund
+  charge: Fund!
   price: Int!
   gift: Gift!
-  name: String!
+  name: String
+  address: Address
   user: User
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -1462,8 +1470,9 @@ input TransactionCreateInput {
   type: TransactionType!
   price: Int!
   gift: Gift!
-  name: String!
-  charge: FundCreateOneInput
+  name: String
+  charge: FundCreateOneInput!
+  address: AddressCreateOneInput
   user: UserCreateOneWithoutTransactionsInput
 }
 
@@ -1477,8 +1486,9 @@ input TransactionCreateWithoutUserInput {
   type: TransactionType!
   price: Int!
   gift: Gift!
-  name: String!
-  charge: FundCreateOneInput
+  name: String
+  charge: FundCreateOneInput!
+  address: AddressCreateOneInput
 }
 
 """An edge in a connection."""
@@ -1512,7 +1522,7 @@ type TransactionPreviousValues {
   type: TransactionType!
   price: Int!
   gift: Gift!
-  name: String!
+  name: String
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -1741,7 +1751,8 @@ input TransactionUpdateInput {
   price: Int
   gift: Gift
   name: String
-  charge: FundUpdateOneInput
+  charge: FundUpdateOneRequiredInput
+  address: AddressUpdateOneInput
   user: UserUpdateOneWithoutTransactionsInput
 }
 
@@ -1781,7 +1792,8 @@ input TransactionUpdateWithoutUserDataInput {
   price: Int
   gift: Gift
   name: String
-  charge: FundUpdateOneInput
+  charge: FundUpdateOneRequiredInput
+  address: AddressUpdateOneInput
 }
 
 input TransactionUpdateWithWhereUniqueWithoutUserInput {
@@ -1971,6 +1983,7 @@ input TransactionWhereInput {
   """All values greater than or equal the given value."""
   updatedAt_gte: DateTime
   charge: FundWhereInput
+  address: AddressWhereInput
   user: UserWhereInput
 }
 
