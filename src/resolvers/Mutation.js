@@ -234,7 +234,7 @@ const Mutation = {
   },
 
   async createFundTransaction(parent, args, ctx, info) {
-    const { token, amount, gift, name } = args
+    const { token, amount, gift, name, line1, line2, city, state, zip } = args
     const isLoggedIn = !!ctx.request.userId
     let email = null
     if (isLoggedIn) {
@@ -252,33 +252,49 @@ const Mutation = {
     if (isLoggedIn) {
       charge.receipt_email = email
     }
-    const stripeCharge = await stripe.charges.create({ ...charge }).catch(err => {
-      throw new Error(err)
-    })
 
-    const transactionMutation = {
-      data: {
-        type: 'STRIPE',
-        price: amount,
-        charge: {
-          create: {
-            charge: stripeCharge.id,
-          },
-        },
-        gift: gift.toUpperCase() === 'GYM' ? 'GYM' : 'HONEYMOON',
-      },
-    }
-    if (isLoggedIn) {
-      transactionMutation.data.user = {
-        connect: {
-          id: ctx.request.userId,
+    try {
+      const stripeCharge = await stripe.charges.create({ ...charge })
+
+      // Prepare the mutation for the database
+      const transactionMutation = {
+        data: {
+          type: 'STRIPE',
+          price: amount,
+          gift: gift.toUpperCase() === 'GYM' ? 'GYM' : 'HONEYMOON',
+          charge: { create: { charge: stripeCharge.id } },
         },
       }
-      transactionMutation.data.name = ctx.request.user.name
-    } else {
-      transactionMutation.data.name = name
+
+      // User?
+      if (isLoggedIn) {
+        transactionMutation.user = { connect: { id: ctx.request.userId } }
+      } else {
+        // Name?
+        if (name !== '') {
+          transactionMutation.name = name
+        }
+        // Address?
+        const addressHash = addressesController.getHash({ line1, line2, city, state, zip })
+        if (addressHash) {
+          // upsert the address
+          const addressMutation = addressesController.prepareUpsertAddress({
+            line1,
+            line2,
+            city,
+            state,
+            zip,
+          })
+          const address = await ctx.db.mutation.upsertAddress(addressMutation, '{ id }')
+          transactionMutation.address = { connect: { id: address.id } }
+        }
+      }
+
+      // Create the transaction now that all possibilities have been handled
+      return ctx.db.mutation.createTransaction({ ...transactionMutation }, info)
+    } catch (error) {
+      throw error
     }
-    return ctx.db.mutation.createTransaction({ ...transactionMutation }, info)
   },
 
   async updateAddress(parent, args, ctx, info) {
