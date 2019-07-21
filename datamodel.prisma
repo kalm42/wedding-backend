@@ -47,10 +47,11 @@ type Address {
 type Transaction {
   id: ID! @id
   type: TransactionType!
-  charge: Fund @relation(link: TABLE)
+  charge: Fund! @relation(link: TABLE)
   price: Int!
   gift: Gift!
-  name: String!
+  name: String
+  address: Address
   user: User @relation(link: TABLE)
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt

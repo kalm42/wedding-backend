@@ -24,7 +24,17 @@ type Mutation {
   requestReset(email: String!): SuccessMessage
   resetPassword(resetToken: String!, password: String!, confirmPassword: String!): User!
   updatePermissions(permissions: [Permission]!, userId: ID!): User
-  createFundTransaction(token: String!, amount: Int!, gift: String!, name: String): Transaction!
+  createFundTransaction(
+    token: String!
+    amount: Int!
+    gift: String!
+    name: String
+    line1: String
+    line2: String
+    city: String
+    state: String
+    zip: String
+  ): Transaction!
   updateAddress(
     id: ID!
     line1: String
@@ -34,16 +44,23 @@ type Mutation {
     zip: String
   ): Address!
   createInvitations: [Invitation]!
+  createInvitation(userId: ID!): Invitation
 }
 
 type Query {
-  addresses: [Address]!
+  RSVP: [User]!
   address(where: AddressWhereUniqueInput!): Address
-  me: User
-  users: [User]!
-  user(where: UserWhereUniqueInput!): User
-  transactions(where: TransactionWhereInput): [Transaction]!
+  addresses: [Address]!
+  confirmedGuestCount: Int!
   giftStatus: GiftStatus
+  me: User
+  noInvite: [User]!
+  noRSVP: [User]!
+  transactions: [Transaction]!
+  allUsersTransactions(gift: Gift!): [Transaction]!
+  unconfirmedGuestCount: Int!
+  user(where: UserWhereUniqueInput!): User
+  users: [User]!
 }
 
 type SuccessMessage {

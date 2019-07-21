@@ -1,6 +1,6 @@
 {
   "name": "wedding-backend",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Backend for the wedding website",
   "main": "index.js",
   "author": "@kalm42 Kyle Melton",
