@@ -19,18 +19,6 @@ function createPostcardsPromise(param) {
   })
 }
 
-function verifyUSAddressPromise(param) {
-  return new Promise((resolve, reject) => {
-    Lob.usVerifications.verify(param, function(err, res) {
-      if (err !== null) {
-        reject(err)
-      } else {
-        resolve(res)
-      }
-    })
-  })
-}
-
 function createPostcard(guest, db, info) {
   return new Promise((resolve, reject) => {
     createPostcardsPromise({
@@ -72,22 +60,4 @@ function createPostcard(guest, db, info) {
   })
 }
 
-function verifyAddress(address) {
-  const { line1, line2, city, state, zip } = address
-  return new Promise((resolve, reject) => {
-    verifyUSAddressPromise({
-      primary_line: line1,
-      secondary_line: line2,
-      zip_code: zip,
-      city,
-      state,
-    })
-      .then(res => {
-        resolve(res)
-      })
-      .catch(err => reject(err))
-  })
-}
-
 module.exports = createPostcard
-module.exports = verifyAddress
