@@ -41,6 +41,10 @@ server.start(
   },
   deets => {
     // eslint-disable-next-line no-console
-    console.log(`📬  Server is now running at http://localhost:${deets.port}`)
+    console.log(
+      `📬  Server is now running at http://localhost:${deets.port} with cors set for ${
+        deets.cors.origin
+      }`
+    )
   }
 )
