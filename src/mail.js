@@ -33,7 +33,7 @@ const makeAResponsiveEmail = text =>
               <mj-text  font-style="italic"
                         font-size="20px"
                         color="#3f707d">
-                Kyle &amp; Shelly&rqsuo;s Wedding
+                Kyle &amp; Shelly&rsquo;s Wedding
               </mj-text>
             </mj-column>
           </mj-section>
