@@ -45,7 +45,7 @@ function createPostcard(guest, db, info) {
       },
       from: 'adr_d1338124cb1fef0c',
       front: fs.createReadStream(path.join(__dirname, '../postcard/PostcardFront.png')),
-      back: 'tmpl_b1e2ceb9142a12d',
+      back: 'tmpl_fcdaf3ed89d4a0a',
       merge_variables: { name: guest.name, code: guest.rsvpToken },
     })
       .then(card => {
