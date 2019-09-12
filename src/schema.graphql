@@ -9,6 +9,7 @@ type Mutation {
     city: String!
     state: String!
     zip: String!
+    guestCount: Int!
   ): SuccessMessage
   deleteGuest(id: ID!): User
   updateUser(id: ID!, name: String, email: String, isGoing: Boolean, guestCount: Int): User
