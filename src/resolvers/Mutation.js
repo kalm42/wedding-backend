@@ -49,6 +49,7 @@ const Mutation = {
         {
           data: {
             name: args.name,
+            guestCount: args.guestCount,
             email,
             password,
             permissions: { set: ['USER'] },
