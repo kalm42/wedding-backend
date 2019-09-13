@@ -4,7 +4,7 @@ const path = require('path')
 const config = require('../config')
 // eslint-disable-next-line import/order
 const Lob = require('lob')(config.LOB_SECRET_KEY, {
-  apiVersion: '2018-06-05',
+  apiVersion: '2019-06-01',
 })
 
 function createPostcardsPromise(param) {
