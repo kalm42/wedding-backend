@@ -127,7 +127,7 @@ const Mutation = {
 
     const [user] = await ctx.db.query.users({
       where: {
-        rsvpToken: args.rsvpToken,
+        rsvpToken: args.rsvpToken.toLowerCase(),
         rsvpTokenExpiry_gte: Date.now(),
       },
     })
