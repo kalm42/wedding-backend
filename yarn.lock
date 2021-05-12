@@ -6825,10 +6825,10 @@ node-request-by-swagger@^1.0.6:
   resolved "https://registry.yarnpkg.com/node-request-by-swagger/-/node-request-by-swagger-1.1.4.tgz#909a057bd4dffdf5245cb713f5543a9c56eea94d"
   integrity sha512-hwaTaFPUwNKns5qXwGJpLQM3Z5zRluYeAxpYy1L8fWmWdT/DjLmsnW8/oGlSN8Vo4R28c2znfUoBUiB/RlPptw==
 
-nodemailer@^6.1.1:
-  version "6.1.1"
-  resolved "https://registry.yarnpkg.com/nodemailer/-/nodemailer-6.1.1.tgz#09e88ef4b3646f01089c5d84d007b872141fb575"
-  integrity sha512-/x5MRIh56VyuuhLfcz+DL2SlBARpZpgQIf2A4Ao4hMb69MHSgDIMPwYmFwesGT1lkRDZ0eBSoym5+JoIZ3N+cQ==
+nodemailer@^6.4.16:
+  version "6.4.16"
+  resolved "https://registry.yarnpkg.com/nodemailer/-/nodemailer-6.4.16.tgz#5cb6391b1d79ab7eff32d6f9f48366b5a7117293"
+  integrity sha512-68K0LgZ6hmZ7PVmwL78gzNdjpj5viqBdFqKrTtr9bZbJYj6BRj5W6WGkxXrEnUl3Co3CBXi3CZBUlpV/foGnOQ==
 
 nodemon@^1.19.0:
   version "1.19.0"
